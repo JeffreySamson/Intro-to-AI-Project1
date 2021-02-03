@@ -7,4 +7,4 @@ for row in grid:
     print(row)
 
 #Hello 
-print() #prints an empty row
+print() #prints an empty row word
