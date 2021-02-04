@@ -14,7 +14,7 @@ numEmpty = int(round(numEmpty))
 #print(numEmpty)
 
 c = 0
-
+#
 while c < numEmpty :
     pos1 = random.randint(0,dim-1)
     pos2 = random.randint(0,dim-1)
