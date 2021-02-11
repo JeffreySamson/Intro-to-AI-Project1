@@ -26,11 +26,9 @@ def main():
 
     # runing Visuals
     makeGrid()
-    print(GRID)
     checkerBoard()
 
-    a = neighbors(14)
-    print(a)
+
 
 
 def makeGrid():
@@ -43,7 +41,7 @@ def makeGrid():
     while c < numEmpty :
         temp = random.randint(0,SIZE-1)
 
-        if (GRID[temp] == 1 and temp != 0 and temp != SIZE-1):
+        if (GRID[temp] == 1):
             GRID[temp] = 0
             c +=1
 
@@ -72,7 +70,7 @@ def neighbors(state):
     return [left, right, up, down]
 
 
-# RUN THE MAIN 
+# RUN THE MAIN: DO NOT DELETE!
 if __name__ == '__main__': main()
 
 
