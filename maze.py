@@ -3,20 +3,39 @@ from tkinter import *
 import numpy as np
 import random
 
-#DIM = int(input('Enter the size of the array: '))
-#PROB = float(input('Enter the probability of an element being a 1 or 0: '))
-#while (PROB <0 or PROB >1):
-    #print ('PROB must be between 1 and 0')
+def main():
+
+    global SIZE
+    global DIM
+    global PROB
+    global GRID
+
+    #DIM = int(input('Enter the size of the array: '))
     #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
+    #while (PROB <0 or PROB >1):
+        #print ('PROB must be between 1 and 0')
+        #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
-DIM = 10
-PROB = 0.5
+    DIM = 10
+    PROB = 0.1
 
-SIZE = DIM**2
-GRID = np.ones(DIM**2)
+    SIZE = DIM**2
+    GRID = np.ones(DIM**2)
+
+
+
+    # runing Visuals
+    makeGrid()
+    print(GRID)
+    checkerBoard()
+
+    a = neighbors(14)
+    print(a)
 
 
 def makeGrid():
+    global SIZE
+    global DIM
     numEmpty = (SIZE)*PROB
     numEmpty = int(round(numEmpty))
 
@@ -53,16 +72,8 @@ def neighbors(state):
     return [left, right, up, down]
 
 
-
-
-
-
-# runing Visuals
-makeGrid()
-checkerBoard()
-
-a = neighbors(14)
-print(a)
+# RUN THE MAIN 
+if __name__ == '__main__': main()
 
 
 
