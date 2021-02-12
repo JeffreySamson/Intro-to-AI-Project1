@@ -22,12 +22,17 @@ def main():
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
     DIM = 10
-    PROB = 0.3
+    PROB = 0.1
     SIZE = DIM**2
 
     # generates random points to start
-    start = random.randint(0,SIZE-1)
-    end = random.randint(0,SIZE-1)
+    #start = random.randint(0,SIZE-1)
+    #end = random.randint(0,SIZE-1)
+    
+    start = 0
+    end = SIZE - 1
+
+
     #check so that start and end is not the same 
     while (start == end):
         end = random.randint(0,SIZE-1)
@@ -41,8 +46,8 @@ def main():
     #checkerBoard()
 
     # RUNS DFS 
-    solution = DFS(start, end)
-    #print(solution)
+    solution = BFS(start, end)
+    print(solution)
 
     # checks if there is a solution and then marks the path
     if solution:
@@ -63,8 +68,50 @@ def main():
 
 #executes the BFS algorithm
 def BFS(begin,end):
+    global GRID
+    # checks if the start and the goal is not empty 
+    if (GRID[begin] == 0 or GRID[end] == 0):
+        print("Invalid start or end")
+        return
 
-    return
+    # creats the stack that you have already visited
+    closedSet = {start}
+
+     # creates the fringe stack and adds start to fringe
+    fringe = deque([(start,[])])
+
+    while fringe: # checks if the fringe is empty
+
+        current, path = fringe.popleft()
+        closedSet.add(current)
+
+        # found the path
+        if (current == end):
+            print ("Success!")
+            return path + [current]
+
+        # calculate the valid neighbors
+        vldneigh = getNeighbors(current)
+        #print('Valid Neighbors for {} is {}'.format(current,vldneigh))
+
+        for child in vldneigh:
+            if child not in closedSet:
+                fringe.append((child,path + [current]))
+                closedSet.add(child)
+
+        
+    print("No Solution ")
+    return None
+
+
+
+
+
+
+
+
+
+
 
 
 # executes the DFS algorithms
@@ -105,7 +152,8 @@ def DFS(begin, end):
             # checks in child is already in the closed set
             if child not in closedSet:
                 fringe.append(child)
-            closedSet.append(current)
+                #path.append(current)
+        closedSet.append(current)
     print("No Solution ")
     return path
         
@@ -171,7 +219,7 @@ def getNeighbors(current):
     down = current + DIM
 
 
-    tempNeighbors = [left, right, up, down] # all possible neighbors
+    tempNeighbors = [ up, down, right, left] # all possible neighbors
     neighbors = [] # valid neighbors
 
     #checks if the current is on the left edges and gets rid of left neighbor
