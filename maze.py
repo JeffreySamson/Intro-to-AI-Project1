@@ -13,33 +13,41 @@ def main():
     global PROB
     global start
     global end
+    global debug
+    global searchType
 
-    #DIM = int(input('Enter the size of the array: '))
-    #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
-    #while (PROB <0 or PROB >1):
-        #print ('PROB must be between 1 and 0')
-        #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
+    DIM = int(input('Enter the size of the array\n')) # Takes in user input for maze dimesnions
+    PROB = float(input('Enter the probability of an element being a 1 or 0\n')) # Takes in user input for probability of blocked spaces
+    #DIM = 10
+    #PROB = 0.3
+    while (PROB <0 or PROB >1):
+        print ('PROB must be between 1 and 0')
+        PROB = float(input('Enter the probability of an element being a 1 or 0\n'))
 
-    DIM = 10
-    PROB = 0.3
+    searchType = input('How would you like to search for a path? (Enter BFS/DFS)\n').casefold()
+    debug = input('Would you like debugging print statements? (Enter y/n)\n').casefold()
+    
     SIZE = DIM**2
 
     # generates random points to start
     start = random.randint(0,SIZE-1)
-    print('Starting from: {}'.format(start))
+    # if debug == 'y': print('Starting from: {}'.format(start))
     end = random.randint(0,SIZE-1)
-    print('Ending at: {}'.format(end))
+    # if debug == 'y': print('Ending at: {}'.format(end))
 
     print()
-    print("Going from {} -> {}".format(start,end))
+    if debug == 'y': print("Going from {} -> {}".format(start,end))
 
     # runing Visuals
     makeGrid()
     checkerBoard()
 
 
-    # RUNS DFS 
-    solution = BFS(start, end)
+    # Runs through the maze based on user input of BFS or DFS
+    if searchType == 'bfs':
+        solution = BFS(start, end)
+    elif searchType == 'dfs':
+        solution = DFS(start, end)
     print(solution)
 
     # checks if there is a solution and then marks the path
@@ -76,11 +84,14 @@ def DFS(begin, end):
     i = 0
     while fringe: # checks if the fringe is empty
         # pops the top off the stack
-        print('STEP {}'.format(i))
+        if debug == 'y': 
+            print('STEP {}'.format(i))
+            print('\n')
+            print('fringe is: {}'.format(fringe))
         current = fringe.pop()
-        print('Current is {}'.format(current))
+        if debug == 'y': print('Current is {}'.format(current))
         path.append(current)
-        print("Path is {}".format(path))
+        if debug == 'y': print("Path is {}".format(path))
 
         # found the path
         if (current == end):
@@ -88,14 +99,14 @@ def DFS(begin, end):
             return path
         # calculate the valid neighbors
         vldneigh = getNeighbors(current)
-        print('Valid Neighbors for {} is {}'.format(current,vldneigh))
+        if debug == 'y': print('Valid Neighbors for {} is {}'.format(current,vldneigh))
 
         for child in vldneigh:
             # checks in child is already in the closed set
             if child not in closedSet:
                 fringe.append(child)
             closedSet.append(current)
-        print('closed set is {}'.format(closedSet))
+        if debug == 'y': print('closed set is {}'.format(closedSet))
         i += 1
 
     print("No Solution ")
@@ -120,13 +131,14 @@ def BFS(begin, end):
     i = 0
     while fringe: # checks if the fringe is empty
         # pops the top off the stack
-        print('fringe is: {}'.format(fringe))
-        print('\n')
-        print('STEP {}'.format(i))
+        if debug == 'y': 
+            print('fringe is: {}'.format(fringe))
+            print('\n')
+            print('STEP {}'.format(i))
         current = fringe.popleft()
-        print('Current is {}'.format(current))
+        if debug == 'y': print('Current is {}'.format(current))
         path.append(current)
-        print("Path is {}".format(path))
+        if debug == 'y': print("Path is {}".format(path))
 
         # found the path
         if (current == end):
@@ -134,14 +146,14 @@ def BFS(begin, end):
             return path
         # calculate the valid neighbors
         vldneigh = getNeighbors(current)
-        print('Valid Neighbors for {} is {}'.format(current,vldneigh))
+        if debug == 'y': print('Valid Neighbors for {} is {}'.format(current,vldneigh))
 
         for child in vldneigh:
             # checks in child is already in the closed set
             if child not in closedSet:
                 fringe.append(child)
         closedSet.append(current)
-        print('closed set is {}'.format(closedSet))
+        if debug == 'y': print('closed set is {}'.format(closedSet))
         i += 1
         
 
