@@ -7,6 +7,7 @@ from collections import deque
 
 def main():
 
+    # global variables 
     global SIZE
     global DIM
     global GRID
@@ -21,12 +22,15 @@ def main():
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
     DIM = 10
-    PROB = 0
+    PROB = 0.5
     SIZE = DIM**2
 
     # generates random points to start
     start = random.randint(0,SIZE-1)
     end = random.randint(0,SIZE-1)
+    #check so that start and end is not the same 
+    while (start == end):
+        end = random.randint(0,SIZE-1)
 
     print()
     print("Going from {} -> {}".format(start,end))
@@ -34,7 +38,6 @@ def main():
     # runing Visuals
     makeGrid()
     checkerBoard()
-
 
     # RUNS DFS 
     solution = DFS(start, end)
@@ -46,14 +49,24 @@ def main():
             if i > (SIZE -1):
                 print("Solution went out of bound at {}".format(i))
             elif not ( i == start or i == end ):
-                GRID[i] = 7 # 2 = path
+                GRID[i] = 7 # 7 = path
 
+    print() #prints an empty line
     # generates the final solution
     checkerBoard()
+    
+
 
 
 ######################[functions]######################
 
+#executes the BFS algorithm
+def BFS(begin,end):
+
+    return
+
+
+# executes the DFS algorithms
 def DFS(begin, end):
     global GRID
     # checks if the start and the goal is not empty 
@@ -92,8 +105,7 @@ def DFS(begin, end):
             if child not in closedSet:
                 fringe.append(child)
             closedSet.append(current)
-            
-    
+    return path
     print("No Solution ")
         
     
@@ -121,7 +133,6 @@ def makeGrid():
             GRID[temp] = 0
             c +=1
 
-
 # makes the visual canvas for the grid
 class checkerBoard():
     def __init__(self):
@@ -133,19 +144,20 @@ class checkerBoard():
         # makes the grid all white
         for i in range(SIZE):
             if(GRID[i] == 1):
-                color = "white"
+                color = "white" # not empty
             elif(GRID[i] == 0):
-                color = "black"
+                color = "black" # empty
             elif(GRID[i] == -1):
-                color = "orange"
+                color = "blue" # start and end goals
             else:
-                color = "green"
+                color = "green" # path taken
             Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
     
         window.mainloop()
 
 # gets the left, right, up, and down neighbors in that order
 def getNeighbors(current):
+
     global SIZE
     global GRID
     global DIM
@@ -156,27 +168,29 @@ def getNeighbors(current):
     down = current + DIM
 
 
-    temp = [left, down, right, up]
-    neighbors = []
+    tempNeighbors = [left, right, up, down] # all possible neighbors
+    neighbors = [] # valid neighbors
 
-    #checks if the current is on the edges and gets rid of apporopriate neighbor
+    #checks if the current is on the left edges and gets rid of left neighbor
     if (current % DIM == 0):
-        temp.remove(left)
+        tempNeighbors.remove(left)
+    #checks if the current is on the right edges and gets rid of right neighbor
     elif (current % DIM == (DIM -1)):
-        temp.remove(right)
-    
+        tempNeighbors.remove(right)
+    #checks if the current is on the down edge and gets rid of down neighbor
     if (current // DIM == (DIM -1)):
-        temp.remove(down)
+        tempNeighbors.remove(down)
+    #checks if the current is on the top edge and gets rid of top neighbor
     elif(current //DIM == 0):
-        temp.remove(up)
-
-    for i in temp:
+        tempNeighbors.remove(up)
+    # gets rid of all the nieghbors that are empty
+    for i in tempNeighbors:
         if (not GRID[i] == 0):
             neighbors.append(i)
 
     return neighbors
 
-
+#___________________________________________________________________
 # RUN THE MAIN: DO NOT DELETE!
 if __name__ == '__main__': main()
 
