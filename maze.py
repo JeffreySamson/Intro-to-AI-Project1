@@ -1,5 +1,6 @@
 
 from tkinter import *
+from typing import TYPE_CHECKING
 import numpy as np
 import random
 from collections import deque
@@ -8,8 +9,10 @@ def main():
 
     global SIZE
     global DIM
-    global PROB
     global GRID
+    global PROB
+    global start
+    global end
 
     #DIM = int(input('Enter the size of the array: '))
     #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
@@ -17,30 +20,36 @@ def main():
         #print ('PROB must be between 1 and 0')
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
-    DIM = 10
-    PROB = 0.6
-
+    DIM = 50
+    PROB = 0
     SIZE = DIM**2
-    GRID = np.ones(DIM**2)
+
+    # generates random points to start
+    start = random.randint(0,SIZE-1)
+    end = random.randint(0,SIZE-1)
+
+    print()
+    print("Going from {} -> {}".format(start,end))
 
     # runing Visuals
     makeGrid()
     checkerBoard()
 
-    #start = random.randint(0,SIZE-1)
-    #end = random.randint(0,SIZE-1)
 
-    solution = DFS(0,17)
-    print (solution)
+    # RUNS DFS 
+    solution = DFS(start, end)
+    #print(solution)
 
-    for i in solution :
-        GRID[i] = -1
+    # checks if there is a solution and then marks the path
+    if solution:
+        for i in solution :
+            if i > (SIZE -1):
+                print("Solution went out of bound at {}".format(i))
+            elif not ( i == start or i == end ):
+                GRID[i] = 7 # 2 = path
 
-
+    # generates the final solution
     checkerBoard()
-
-    
-
 
 
 ######################[functions]######################
@@ -68,7 +77,7 @@ def DFS(begin, end):
         # pops the top off the stack
         current = fringe.pop()
         path.append(current)
-        print("current {}".format(current))
+        #print("current {}".format(current))
 
         # found the path
         if (current == end):
@@ -76,7 +85,7 @@ def DFS(begin, end):
             return path
         # calculate the valid neighbors
         vldneigh = getNeighbors(current)
-        print('Valid Neighbors for current: {}'.format(vldneigh))
+        #print('Valid Neighbors for {} is {}'.format(current,vldneigh))
 
         for child in vldneigh:
             # checks in child is already in the closed set
@@ -85,23 +94,33 @@ def DFS(begin, end):
             closedSet.append(current)
             
     
-    print("No Solution")
+    print("No Solution ")
         
     
 # makes the grid using the probability and the size
 def makeGrid():
     global SIZE
     global DIM
+    global GRID
+    global start
+    global end
+
+    GRID = np.ones(DIM**2)
+
     numEmpty = (SIZE)*PROB
     numEmpty = int(round(numEmpty))
+
+    GRID[start] = -1
+    GRID[end] = -1
 
     c = 0
     while c < numEmpty :
         temp = random.randint(0,SIZE-1)
 
-        if (GRID[temp] == 1):
+        if (GRID[temp] == 1 and not(temp ==0) and not(temp == SIZE -1)):
             GRID[temp] = 0
             c +=1
+
 
 # makes the visual canvas for the grid
 class checkerBoard():
@@ -117,7 +136,7 @@ class checkerBoard():
                 color = "white"
             elif(GRID[i] == 0):
                 color = "black"
-            elif(GRID[i] == -10):
+            elif(GRID[i] == -1):
                 color = "orange"
             else:
                 color = "green"
@@ -127,24 +146,35 @@ class checkerBoard():
 
 # gets the left, right, up, and down neighbors in that order
 def getNeighbors(current):
+    global SIZE
+    global GRID
+    global DIM
+
     left = current -1
     right = current+1
     up = current - DIM
     down = current + DIM
-    neigh = [left, right, up, down]
+
+
+    temp = [left, down, right, up]
+    neighbors = []
 
     #checks if the current is on the edges and gets rid of apporopriate neighbor
     if (current % DIM == 0):
-        neigh.remove(left)
+        temp.remove(left)
     elif (current % DIM == (DIM -1)):
-        neigh.remove(right)
+        temp.remove(right)
+    
+    if (current // DIM == (DIM -1)):
+        temp.remove(down)
+    elif(current //DIM == 0):
+        temp.remove(up)
 
-    for i in neigh:
-        if((i < 0) or (i > (SIZE -1))):
-            neigh.remove(i)
-        elif(GRID[i] ==0):
-            neigh.remove(i)
-    return neigh
+    for i in temp:
+        if (not GRID[i] == 0):
+            neighbors.append(i)
+
+    return neighbors
 
 
 # RUN THE MAIN: DO NOT DELETE!

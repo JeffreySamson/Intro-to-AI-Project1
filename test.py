@@ -1,8 +1,9 @@
 
 
+    # checks if there is a solution and then marks the path
+    if solution:
+        for i in solution :
+            GRID[i] = 5 # 2 = path
 
-neighbors = [5, -14, 20, 15]
-SIZE = 100
-for i in neighbors:
-    print(i)
-    
+
+    checkerBoard()
