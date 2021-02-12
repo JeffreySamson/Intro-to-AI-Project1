@@ -20,7 +20,7 @@ def main():
         #print ('PROB must be between 1 and 0')
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
-    DIM = 50
+    DIM = 10
     PROB = 0
     SIZE = DIM**2
 
