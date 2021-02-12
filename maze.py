@@ -22,7 +22,7 @@ def main():
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
     DIM = 10
-    PROB = 0.5
+    PROB = 0.3
     SIZE = DIM**2
 
     # generates random points to start
@@ -35,9 +35,10 @@ def main():
     print()
     print("Going from {} -> {}".format(start,end))
 
-    # runing Visuals
+    # runing the initial grid
     makeGrid()
-    checkerBoard()
+    # shows how the initial grid looks like
+    #checkerBoard()
 
     # RUNS DFS 
     solution = DFS(start, end)
@@ -105,8 +106,8 @@ def DFS(begin, end):
             if child not in closedSet:
                 fringe.append(child)
             closedSet.append(current)
-    return path
     print("No Solution ")
+    return path
         
     
 # makes the grid using the probability and the size
@@ -123,7 +124,7 @@ def makeGrid():
     numEmpty = int(round(numEmpty))
 
     GRID[start] = -1
-    GRID[end] = -1
+    GRID[end] = -2
 
     c = 0
     while c < numEmpty :
@@ -148,7 +149,9 @@ class checkerBoard():
             elif(GRID[i] == 0):
                 color = "black" # empty
             elif(GRID[i] == -1):
-                color = "blue" # start and end goals
+                color = "blue" # start is blue
+            elif(GRID[i] == -2):
+                color = "purple" # end is purple
             else:
                 color = "green" # path taken
             Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
