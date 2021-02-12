@@ -15,14 +15,20 @@ def main():
     global end
     global debug
     global searchType
+    global burnRate
 
     DIM = int(input('Enter the size of the array\n')) # Takes in user input for maze dimesnions
     PROB = float(input('Enter the probability of an element being a 1 or 0\n')) # Takes in user input for probability of blocked spaces
-    #DIM = 10
-    #PROB = 0.3
     while (PROB <0 or PROB >1):
         print ('PROB must be between 1 and 0')
         PROB = float(input('Enter the probability of an element being a 1 or 0\n'))
+    burnRate = float(input('Enter the probability of an free space getting burned\n'))
+    while (burnRate <0 or burnRate >1):
+        print ('PROB must be between 1 and 0')
+        burnRate = float(input('Enter the probability of an free space getting burned\n'))
+    #DIM = 10
+    #PROB = 0.3
+    
 
     searchType = input('How would you like to search for a path? (Enter BFS/DFS)\n').casefold()
     debug = input('Would you like debugging print statements? (Enter y/n)\n').casefold()
@@ -63,6 +69,50 @@ def main():
 
 
 ######################[functions]######################
+# gets the left, right, up, and down neighbors in that order
+def getNeighbors(current):
+    global SIZE
+    global GRID
+    global DIM
+
+    left = current -1
+    right = current+1
+    up = current - DIM
+    down = current + DIM
+
+
+    temp = [left, down, right, up]
+
+    neighbors = []
+      #checks if the current is on the edges and gets rid of apporopriate neighbor
+        # Case for current is in the left most column with neighbor in the right most column one above
+    if (current % DIM == 0): 
+        temp.remove(left)
+        # Case for current is in the right most column with neighbor in the left most column one below
+    elif (current % DIM == (DIM -1)):
+        temp.remove(right)
+        # Case for current is in the bottom most row
+    if (current // DIM == (DIM -1)):
+        temp.remove(down)
+        # Case for current is in the top most row
+    elif(current //DIM == 0):
+        temp.remove(up)
+
+    for i in temp:
+        if (not GRID[i] == 0):
+            neighbors.append(i)
+
+    return neighbors # returns only not blocked spaces without boarder issues 
+    
+
+
+def getValidNeighbors(vldneigh):
+    for i in vldneigh:
+        if(GRID[i] == -2):
+            vldneigh.remove(i)
+    return vldneigh
+
+  
 
 def DFS(begin, end):
     global GRID
@@ -88,19 +138,26 @@ def DFS(begin, end):
             print('STEP {}'.format(i))
             print('\n')
             print('fringe is: {}'.format(fringe))
+
         current = fringe.pop()
         if debug == 'y': print('Current is {}'.format(current))
+
         path.append(current)
         if debug == 'y': print("Path is {}".format(path))
-
+        # UPDATE GRID WITH BURN
+        GRID = burnGrid(GRID, begin, end)
         # found the path
         if (current == end):
             print ("Success!")
             return path
         # calculate the valid neighbors
+        #temp = getNeighbors(current)
+        #vldneigh = getValidNeighbors(temp, current)
         vldneigh = getNeighbors(current)
+        # remove burning neighbors
+        vldneigh = getValidNeighbors(vldneigh)
+        if debug == 'y': print (GRID)
         if debug == 'y': print('Valid Neighbors for {} is {}'.format(current,vldneigh))
-
         for child in vldneigh:
             # checks in child is already in the closed set
             if child not in closedSet:
@@ -130,7 +187,7 @@ def BFS(begin, end):
     path = []
     i = 0
     while fringe: # checks if the fringe is empty
-        # pops the top off the stack
+        # pops the top off the queue
         if debug == 'y': 
             print('fringe is: {}'.format(fringe))
             print('\n')
@@ -139,13 +196,17 @@ def BFS(begin, end):
         if debug == 'y': print('Current is {}'.format(current))
         path.append(current)
         if debug == 'y': print("Path is {}".format(path))
-
+        # UPDATE GRID WITH BURN
+        GRID = burnGrid(GRID, begin, end)
         # found the path
         if (current == end):
             print ("Success!")
             return path
         # calculate the valid neighbors
         vldneigh = getNeighbors(current)
+        # remove burning neighbors
+        vldneigh = getValidNeighbors(vldneigh)
+        if debug == 'y': print (GRID)
         if debug == 'y': print('Valid Neighbors for {} is {}'.format(current,vldneigh))
 
         for child in vldneigh:
@@ -166,11 +227,14 @@ def makeGrid():
     global GRID
     global start
     global end
+    global burnRate
 
     GRID = np.ones(DIM**2)
 
     numEmpty = (SIZE)*PROB
     numEmpty = int(round(numEmpty))
+    burningSpaces = (SIZE)*burnRate
+    burningSpaces = int(round(burningSpaces))
 
     GRID[start] = -1
     GRID[end] = -1
@@ -182,10 +246,35 @@ def makeGrid():
         if (GRID[temp] == 1 and not(temp ==0) and not(temp == SIZE -1)):
             GRID[temp] = 0
             c +=1
+    c = 0
+    while c < burningSpaces:
+        temp = random.randint(0,SIZE-1)
+        if (GRID[temp] == 1 and not(temp ==0) and not(temp == SIZE -1)):
+            GRID[temp] = -2
+            c +=1
 
+
+
+def burnGrid(GRID, start, end):
+    global burnRate 
+    global SIZE
+    # Make a copy of the maze
+    newGrid = np.copy(GRID)
+    for node in range(len(GRID)):
+        if newGrid[node] != 0 and newGrid[node] != -2 and node != start and node != end:
+            neighbors = getNeighbors(node)
+            i = 0
+            for j in neighbors:
+                if(GRID[j] == -2):
+                    i +=1
+            prob = 1 - ((1-burnRate)**i)
+            if random.uniform(0, 1) <= prob:
+                newGrid[node] = -2
+    return newGrid
 
 # makes the visual canvas for the grid
 class checkerBoard():
+
     def __init__(self):
         
         # makes the window for the maze
@@ -200,46 +289,14 @@ class checkerBoard():
                 color = "black"
             elif(GRID[i] == -1):
                 color = "orange"
+            elif(GRID[i] == -2):
+                color = "red"
             else:
                 color = "green"
             Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
     
         window.mainloop()
 
-# gets the left, right, up, and down neighbors in that order
-def getNeighbors(current):
-    global SIZE
-    global GRID
-    global DIM
-
-    left = current -1
-    right = current+1
-    up = current - DIM
-    down = current + DIM
-
-
-    temp = [left, down, right, up]
-    neighbors = []
-
-    #checks if the current is on the edges and gets rid of apporopriate neighbor
-        # Case for current is in the left most column with neighbor in the right most column one above
-    if (current % DIM == 0): 
-        temp.remove(left)
-        # Case for current is in the right most column with neighbor in the left most column one below
-    elif (current % DIM == (DIM -1)):
-        temp.remove(right)
-        # Case for current is in the bottom most row
-    if (current // DIM == (DIM -1)):
-        temp.remove(down)
-        # Case for current is in the top most row
-    elif(current //DIM == 0):
-        temp.remove(up)
-
-    for i in temp:
-        if (not GRID[i] == 0):
-            neighbors.append(i)
-
-    return neighbors
 
 
 # RUN THE MAIN: DO NOT DELETE!
