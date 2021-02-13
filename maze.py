@@ -22,15 +22,12 @@ def main():
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
     DIM = 10
-    PROB = 0.1
+    PROB = 0.3
     SIZE = DIM**2
 
     # generates random points to start
-    #start = random.randint(0,SIZE-1)
-    #end = random.randint(0,SIZE-1)
-    
-    start = 0
-    end = SIZE - 1
+    start = random.randint(0,SIZE-1)
+    end = random.randint(0,SIZE-1)
 
 
     #check so that start and end is not the same 
@@ -45,9 +42,10 @@ def main():
     # shows how the initial grid looks like
     #checkerBoard()
 
-    # RUNS DFS 
+    # runs search
     solution = BFS(start, end)
-    print(solution)
+    #print(solution)
+
 
     # checks if there is a solution and then marks the path
     if solution:
@@ -66,24 +64,34 @@ def main():
 
 ######################[functions]######################
 
+def AStar(begin,end):
+
+    return
+
+
+
+
 #executes the BFS algorithm
 def BFS(begin,end):
     global GRID
+
     # checks if the start and the goal is not empty 
     if (GRID[begin] == 0 or GRID[end] == 0):
         print("Invalid start or end")
         return
 
     # creats the stack that you have already visited
-    closedSet = {start}
+    closedSet = []
 
-     # creates the fringe stack and adds start to fringe
+    # creates the fringe stack and adds start to fringe
     fringe = deque([(start,[])])
 
     while fringe: # checks if the fringe is empty
-
+        
+        # current is the current node
+        # path keeps track of the path taken to reach current
         current, path = fringe.popleft()
-        closedSet.add(current)
+        closedSet.append(current)
 
         # found the path
         if (current == end):
@@ -96,23 +104,12 @@ def BFS(begin,end):
 
         for child in vldneigh:
             if child not in closedSet:
+                # new path is path + current for this child
                 fringe.append((child,path + [current]))
-                closedSet.add(child)
+                closedSet.append(child)
 
-        
     print("No Solution ")
     return None
-
-
-
-
-
-
-
-
-
-
-
 
 # executes the DFS algorithms
 def DFS(begin, end):
@@ -240,6 +237,7 @@ def getNeighbors(current):
             neighbors.append(i)
 
     return neighbors
+
 
 #___________________________________________________________________
 # RUN THE MAIN: DO NOT DELETE!
