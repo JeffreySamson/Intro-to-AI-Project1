@@ -392,6 +392,43 @@ def getFireNeighbors(current, mazeCopy):
 
     return FireNeighbors
 
+def strategy1(start, end):
+    global GRID
+    path = AStar(start, end)
+    if not path:
+        print("No path to escape!")
+    else:
+        current = start
+
+        while (current != end or GRID[current] == -3):
+            current = path[path.index(current) + 1]
+            advFireOneStep()
+
+        if current == end:
+            print("Escaped!!")
+        else:
+            print("Caught on fire! Dead :(")
+
+def strategy2(start, end):
+    global GRID
+    path = AStar(start, end)
+    if not path:
+        print("No path to escape!")
+    else:
+        current = start
+
+        while (current != end or GRID[current] == -3):
+            current = path[path.index(current) + 1]
+            advFireOneStep()
+            path = AStar(current, end)
+            if not path:
+                print("No path to escape!")
+                return
+
+        if current == end:
+            print("Escaped!!")
+        else:
+            print("Caught on fire! Dead :(")
 
 #___________________________________________________________________
 # RUN THE MAIN: DO NOT DELETE!
