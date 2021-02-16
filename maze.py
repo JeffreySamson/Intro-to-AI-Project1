@@ -31,8 +31,8 @@ def main():
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
     DIM = 10
-    PROB = 0.2
-    q = 0
+    PROB = 0
+    q = 0.5
 
     SIZE = DIM**2
 
@@ -53,14 +53,33 @@ def main():
     # runing the initial grid
     makeGrid()
     # shows how the initial grid looks like
-    #checkerBoard()
+
 
     # runs search
-    solution = AStar(start, end)
+    #solution = AStar(start, end)
     #print(solution)
 
-    print(solution)
+    #print(solution)
 
+    
+    fireSeed = random.randint(0,SIZE-1)
+    
+    while (GRID[fireSeed] == 1):
+        fireSeed = random.randint(0,SIZE-1)
+
+    print(f"FireSeed is {fireSeed}")
+    GRID[fireSeed] = -3
+
+    showMaze()
+
+    for i in range(3):
+        advFireOneStep()
+        showMaze()
+
+
+
+
+'''
     # checks if there is a solution and then marks the path
     if solution:
         for i in solution :
@@ -72,7 +91,10 @@ def main():
     print() #prints an empty line
     # generates the final solution
 
-    showMaze()
+'''
+
+
+
 
 
     # call BFS
@@ -89,24 +111,22 @@ def main():
 ######################[functions]######################
 
 def advFireOneStep():
+
     global q
     global GRID
 
-    mazeCopy = GRID
+    mazeCopy = np.copy(GRID)
 
-    for current in mazeCopy :
-        if not Grid[current] == -3 and not Grid[current] ==0:
-            neighbors = getFireNeighbors(current)
+    for current in range(SIZE):
+
+        if not ((mazeCopy[current] == -3) or (mazeCopy[current] ==0)):
+            neighbors = getFireNeighbors(current, mazeCopy)
             k = len(neighbors)
-            prob = 1-(1-q)**k
-            if random() <= prob:
+            prob = 1-((1-q)**k)
+            if random.random() <= prob:
+                #print(current)
                 GRID[current] = -3
         
-
-
-
-
-
 
     return 
 
@@ -272,7 +292,6 @@ def makeGrid():
     c = 0
     while c < numEmpty :
         temp = random.randint(0,SIZE-1)
-
         if (GRID[temp] == 1 and not(temp ==0) and not(temp == SIZE -1)):
             GRID[temp] = 0
             c +=1
@@ -295,6 +314,8 @@ class showMaze():
                 color = "blue" # start is blue
             elif(GRID[i] == -2):
                 color = "purple" # end is purple
+            elif(GRID[i] == -3):
+                color = "orangered" # on fire
             else:
                 color = "green" # path taken
             Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
@@ -331,13 +352,13 @@ def getNeighbors(current):
         tempNeighbors.remove(up)
     # gets rid of all the nieghbors that are empty
     for i in tempNeighbors:
-        if (not GRID[i] == 0) and not Grid[i] ==-3):
+        if (not GRID[i] == 0) and (not GRID[i] ==-3):
             neighbors.append(i)
 
     return neighbors
 
 #gets the Neighbors that are on fire
-def getFireNeighbors(current):
+def getFireNeighbors(current, mazeCopy):
     
     global SIZE
     global GRID
@@ -360,13 +381,13 @@ def getFireNeighbors(current):
         tempNeighbors.remove(right)
     #checks if the current is on the down edge and gets rid of down neighbor
     if (current // DIM == (DIM -1)):
-        tempNeighbors.remove(down -- )
+        tempNeighbors.remove(down)
     #checks if the current is on the top edge and gets rid of top neighbor
     elif(current //DIM == 0):
         tempNeighbors.remove(up)
     # gets rid of all the nieghbors that are empty
     for i in tempNeighbors:
-        if (Grid[i] ==-3):
+        if (mazeCopy[i] ==-3):
             FireNeighbors.append(i)
 
     return FireNeighbors
