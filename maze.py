@@ -3,7 +3,11 @@ from tkinter import *
 from typing import TYPE_CHECKING
 import numpy as np
 import random
+import math
+from queue import Empty, PriorityQueue
+import heapq
 from collections import deque
+
 
 def main():
 
@@ -21,13 +25,15 @@ def main():
         #print ('PROB must be between 1 and 0')
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
-    DIM = 10
-    PROB = 0.3
+    DIM = 200
+    PROB =0.3
     SIZE = DIM**2
 
     # generates random points to start
-    start = random.randint(0,SIZE-1)
-    end = random.randint(0,SIZE-1)
+    #start = random.randint(0,SIZE-1)
+    #end = random.randint(0,SIZE-1)
+    start = 0
+    end = SIZE - 1
 
 
     #check so that start and end is not the same 
@@ -43,7 +49,7 @@ def main():
     #checkerBoard()
 
     # runs search
-    solution = BFS(start, end)
+    solution = AStar(start, end)
     #print(solution)
 
 
@@ -57,26 +63,92 @@ def main():
 
     print() #prints an empty line
     # generates the final solution
-    checkerBoard()
+
+    #checkerBoard()
+
+    #solution2 = BFS(start,end)
+
+    #print("Astar: {} BFS: {}".format(len(solution),len(solution)))
+
+
+
     
+
 
 
 
 ######################[functions]######################
 
-def AStar(begin,end):
+def AStar(start,end):
+    
+    dist = {}
+    processed = {}
+    prev = {}
 
-    return
+    for v in range(SIZE):
+        dist[v] = math.inf
+        processed[v] = False
+        prev[v] = NONE
+
+    dist[start] =0
+    fringe = []
+    heapq.heappush(fringe,(dist[start],start,[]))
+    prev[start] = start
+    
+    while fringe: # checks if the fringe is empty
+        
+        (d,v,path) = heapq.heappop(fringe)
+
+        # found the path
+        if (v == end):
+            print ("Success!")
+            return [v] + path
+        
+        if not processed[v]:
+
+            vldneigh = getNeighbors(v)
+
+            for u in vldneigh:
+                if ((d + Heu(u)) < dist[u]):
+                    dist[u] = d + Heu(u)
+                    #print('going to {} from {} is {}'.format(v,u,dist[u]))
+                    heapq.heappush(fringe,(dist[u],u,[u]+path))
+                    prev[u] = v
+            processed[v] = True
+
+    print("No path")
+    return None
+
+
+
+
+# eucledian heuristic
+def Heu(current):
+    global DIM
+    global end
+
+    # heuristic is based on eucledian heuristic
+    x = current % DIM
+    y = current // DIM
+
+    # goal location
+    endX = end % DIM
+    endY = end // DIM
+
+    # distance formula on (x,y) -> (endX, endY)
+    dis = math.sqrt(((x-endX)**2) + (y-endY)**2)
+
+    return dis
 
 
 
 
 #executes the BFS algorithm
-def BFS(begin,end):
+def BFS(start,end):
     global GRID
 
     # checks if the start and the goal is not empty 
-    if (GRID[begin] == 0 or GRID[end] == 0):
+    if (GRID[start] == 0 or GRID[end] == 0):
         print("Invalid start or end")
         return
 
@@ -89,7 +161,8 @@ def BFS(begin,end):
     while fringe: # checks if the fringe is empty
         
         # current is the current node
-        # path keeps track of the path taken to reach current
+        # path keeps track of the path taken to reach current from start
+        #everything at the top of the queue will always be the shortest path
         current, path = fringe.popleft()
         closedSet.append(current)
 
@@ -112,17 +185,17 @@ def BFS(begin,end):
     return None
 
 # executes the DFS algorithms
-def DFS(begin, end):
+def DFS(start, end):
     global GRID
     # checks if the start and the goal is not empty 
-    if (GRID[begin] == 0 or GRID[end] == 0):
+    if (GRID[start] == 0 or GRID[end] == 0):
         print("Invalid start or end")
         return
 
     # creates the fringe stack
     fringe = deque() 
     # adds the start node to the fringe
-    fringe.append(begin)
+    fringe.append(start)
 
     # creats the stack that you have already visited
     closedSet = deque() #
@@ -237,7 +310,6 @@ def getNeighbors(current):
             neighbors.append(i)
 
     return neighbors
-
 
 #___________________________________________________________________
 # RUN THE MAIN: DO NOT DELETE!
