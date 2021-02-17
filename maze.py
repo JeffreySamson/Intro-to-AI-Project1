@@ -64,7 +64,7 @@ def main():
     
     fireSeed = random.randint(0,SIZE-1)
     
-    while (GRID[fireSeed] == 1):
+    while (GRID[fireSeed] == 0):
         fireSeed = random.randint(0,SIZE-1)
 
     print(f"FireSeed is {fireSeed}")
@@ -72,9 +72,10 @@ def main():
 
     showMaze()
 
-    for i in range(3):
+    strategy1(start, end)
+    """for i in range(3):
         advFireOneStep()
-        showMaze()
+        showMaze()"""
 
 
 
@@ -352,7 +353,7 @@ def getNeighbors(current):
         tempNeighbors.remove(up)
     # gets rid of all the nieghbors that are empty
     for i in tempNeighbors:
-        if (not GRID[i] == 0) and (not GRID[i] ==-3):
+        if not(GRID[i] == 0 or GRID[i] == -3):
             neighbors.append(i)
 
     return neighbors
@@ -398,11 +399,18 @@ def strategy1(start, end):
     if not path:
         print("No path to escape!")
     else:
+        path = [start] + path
         current = start
+        GRID[current] = 7
 
-        while (current != end or GRID[current] == -3):
+        while (current != end):
             current = path[path.index(current) + 1]
-            advFireOneStep()
+            if (GRID[current] == -3):
+                break
+            else:
+                GRID[current] = 7
+                advFireOneStep()
+                showMaze()
 
         if current == end:
             print("Escaped!!")
@@ -415,15 +423,22 @@ def strategy2(start, end):
     if not path:
         print("No path to escape!")
     else:
+        path = [start] + path
         current = start
+        GRID[current] = 7
 
         while (current != end or GRID[current] == -3):
             current = path[path.index(current) + 1]
-            advFireOneStep()
-            path = AStar(current, end)
-            if not path:
-                print("No path to escape!")
-                return
+            if (GRID[current] == -3):
+                break
+            else:
+                GRID[current] = 7
+                advFireOneStep()
+                path = AStar(current, end)
+                if not path:
+                    print("No path to escape!")
+                    return
+                showMaze()
 
         if current == end:
             print("Escaped!!")
