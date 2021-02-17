@@ -30,9 +30,9 @@ def main():
         #print ('PROB must be between 1 and 0')
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
-    DIM = 10
-    PROB =0.2
-    q = 0.2
+    DIM = 20
+    PROB = 0.2
+    q = 0.5
 
     SIZE = DIM**2
 
@@ -67,7 +67,7 @@ def main():
     while (GRID[fireSeed] == 0 or fireSeed == SIZE-1):
         fireSeed = random.randint(0,SIZE-1)
 
-    print(f"FireSeed is {fireSeed}")
+    #print(f"FireSeed is {fireSeed}")
     GRID[fireSeed] = -3
 
 
@@ -85,9 +85,11 @@ def main():
     print() #prints an empty line
     # generates the final solution
 
-    showMaze()
+    #showMaze()
     strategy1()
-    
+
+    #showMaze()
+    print()
 
     
 
@@ -95,36 +97,44 @@ def main():
 
 ######################[functions]######################
 
+def strategy2():
+
+    return
+
+# executes strategy1
 def strategy1():
 
     path = AStar(start,end)
-
+    
+    if not path:
+        print("No solution")
+        return
 
     pathLength = len(path)
     #print(path)
 
     for current in range(pathLength):
 
-        if GRID[current] == -3:
-            print("DEAD")
+        if path[current] == end:
+            print("Made it!")
             return
 
         #moves the guy forward
         GRID[path[current]] = 7
 
-        # shows the maze
-
-        showMaze()
-        #checks if the guy
-        if (GRID[path[current]] == -3) or (GRID[path[current+1]] == -3):
-            print("DEAD")
-            return
+        # moves fire forward
         advFireOneStep()
 
+        # kills guy if he is currently on fire (== -3) or if his next move is on fire
+        if (GRID[path[current]] == -3) or ( not (current == pathLength-1) and (GRID[path[current+1]] == -3)):
+            showTempMaze()
+            print("YOU'RE DEAD!")
+            return
+        
+        # shows the maze
+        showTempMaze()
 
-
-
-
+#advances the fire by one step
 def advFireOneStep():
 
     global q
@@ -145,6 +155,7 @@ def advFireOneStep():
 
     return 
 
+#executes the AStar search algo
 def AStar(start,end):
     
     dist = {}
@@ -183,7 +194,7 @@ def AStar(start,end):
                     prev[u] = v
             processed[v] = True
 
-    print("No path")
+    #print("No path")
     return None
 
 # eucledian heuristic for AStar
@@ -229,7 +240,8 @@ def BFS(start,end):
 
         # found the path
         if (current == end):
-            print ("Success!")
+            #print ("Success!")
+            path.remove(0)
             return path + [current]
 
         # calculate the valid neighbors
@@ -242,7 +254,7 @@ def BFS(start,end):
                 fringe.append((child,path + [current]))
                 closedSet.append(child)
 
-    print("No Solution ")
+    #print("No Solution ")
     return None
 
 # executes the DFS algorithms
@@ -273,7 +285,7 @@ def DFS(start, end):
 
         # found the path
         if (current == end):
-            print ("Success!")
+            #print ("Success!")
             return path
         # calculate the valid neighbors
         vldneigh = getNeighbors(current)
@@ -285,7 +297,7 @@ def DFS(start, end):
                 fringe.append(child)
                 #path.append(current)
         closedSet.append(current)
-    print("No Solution ")
+    #print("No Solution ")
     return None
     
 # makes the grid using the probability and the size
@@ -314,7 +326,7 @@ def makeGrid():
 # makes the visual canvas for the grid
 class showMaze():
     def __init__(self):
-        
+        global DIM
         # makes the window for the maze
         window = Tk()
         window.title("Fire Maze")
@@ -334,7 +346,53 @@ class showMaze():
             else:
                 color = "green" # path taken
             Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
-    
+
+        width = 30*DIM*1.20
+        height = 30*DIM*1.20
+        screen_width = window.winfo_screenwidth()
+        screen_height = window.winfo_screenheight()
+
+        # calculate position x and y coordinates
+        x = (screen_width/2) - (width/2)
+        y = (screen_height/2) - (height/2)
+        window.geometry('%dx%d+%d+%d' % (width, height, x, y))
+        window.mainloop()
+
+# psuedo animating the maze move
+class showTempMaze():
+
+    def __init__(self):
+        global DIM
+        # makes the window for the maze
+        window = Tk()
+        window.title("Fire Maze")
+
+        # makes the grid all white
+        for i in range(SIZE):
+            if(GRID[i] == 1):
+                color = "white" # not empty
+            elif(GRID[i] == 0):
+                color = "black" # empty
+            elif(GRID[i] == -1):
+                color = "blue" # start is blue
+            elif(GRID[i] == -2):
+                color = "purple" # end is purple
+            elif(GRID[i] == -3):
+                color = "orangered" # on fire
+            else:
+                color = "green" # path taken
+            Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
+
+        width = 30*DIM*1.20
+        height = 30*DIM*1.20
+        screen_width = window.winfo_screenwidth()
+        screen_height = window.winfo_screenheight()
+
+        # calculate position x and y coordinates
+        x = (screen_width/2) - (width/2)
+        y = (screen_height/2) - (height/2)
+        window.geometry('%dx%d+%d+%d' % (width, height, x, y))
+        window.after(450,window.destroy)
         window.mainloop()
 
 # gets the left, right, up, and down neighbors in that order
