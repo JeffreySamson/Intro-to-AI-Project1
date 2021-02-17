@@ -31,8 +31,8 @@ def main():
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
     DIM = 10
-    PROB = 0
-    q = 0.5
+    PROB =0.2
+    q = 0.2
 
     SIZE = DIM**2
 
@@ -63,52 +63,67 @@ def main():
 
     
     fireSeed = random.randint(0,SIZE-1)
-    
-    while (GRID[fireSeed] == 1):
+
+    while (GRID[fireSeed] == 0 or fireSeed == SIZE-1):
         fireSeed = random.randint(0,SIZE-1)
 
     print(f"FireSeed is {fireSeed}")
     GRID[fireSeed] = -3
 
-    showMaze()
 
-    for i in range(3):
-        advFireOneStep()
-        showMaze()
+    #solution = AStar(start,end)
 
-
-
-
-'''
     # checks if there is a solution and then marks the path
-    if solution:
-        for i in solution :
-            if i > (SIZE -1):
-                print("Solution went out of bound at {}".format(i))
-            elif not ( i == start or i == end ):
-                GRID[i] = 7 # 7 = path
+    
+    #if solution:
+    #    for i in solution :
+    #        if i > (SIZE -1):
+    #            print("Solution went out of bound at {}".format(i))
+    #        elif not ( i == start or i == end ):
+    #           GRID[i] = 7 # 7 = path
 
     print() #prints an empty line
     # generates the final solution
 
-'''
-
-
-
-
-
-    # call BFS
-    # make one step
-    # call adv fire one step
+    showMaze()
+    strategy1()
     
-    #call bfs 
-    # make one step
-    # call adv fire one step
 
+    
 
 
 
 ######################[functions]######################
+
+def strategy1():
+
+    path = AStar(start,end)
+
+
+    pathLength = len(path)
+    #print(path)
+
+    for current in range(pathLength):
+
+        if GRID[current] == -3:
+            print("DEAD")
+            return
+
+        #moves the guy forward
+        GRID[path[current]] = 7
+
+        # shows the maze
+
+        showMaze()
+        #checks if the guy
+        if (GRID[path[current]] == -3) or (GRID[path[current+1]] == -3):
+            print("DEAD")
+            return
+        advFireOneStep()
+
+
+
+
 
 def advFireOneStep():
 
@@ -123,7 +138,7 @@ def advFireOneStep():
             neighbors = getFireNeighbors(current, mazeCopy)
             k = len(neighbors)
             prob = 1-((1-q)**k)
-            if random.random() <= prob:
+            if random.random() <= prob :
                 #print(current)
                 GRID[current] = -3
         
@@ -153,7 +168,7 @@ def AStar(start,end):
 
         # found the path
         if (v == end):
-            print ("Success!")
+            #print ("Success!")
             return path
         
         if not processed[v]:
@@ -351,8 +366,9 @@ def getNeighbors(current):
     elif(current //DIM == 0):
         tempNeighbors.remove(up)
     # gets rid of all the nieghbors that are empty
+
     for i in tempNeighbors:
-        if (not GRID[i] == 0) and (not GRID[i] ==-3):
+        if not ((GRID[i] == 0) or (GRID[i] == -3)):
             neighbors.append(i)
 
     return neighbors
