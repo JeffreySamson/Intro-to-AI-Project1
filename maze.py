@@ -31,8 +31,8 @@ def main():
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
     DIM = 20
-    PROB = 0.2
-    q = 0.5
+    PROB = 0.1
+    q = 0.089
 
     SIZE = DIM**2
 
@@ -86,7 +86,7 @@ def main():
     # generates the final solution
 
     #showMaze()
-    strategy1()
+    strategy2(start,end)
 
     #showMaze()
     print()
@@ -97,13 +97,49 @@ def main():
 
 ######################[functions]######################
 
-def strategy2():
+def strategy2(start,end):
+    global GRID
+    path = AStar(start,end)
 
+    if not path:
+        print("No Solution")
+        return
+
+    current = start
+
+    while not path[0] == end:
+        
+        path = AStar(current,end)
+
+        if (not path):
+            print("No path to end")
+            return
+
+
+        #print(path)
+        GRID[path[0]] = 7
+
+
+        current = path[0]
+
+        advFireOneStep()
+
+        if (GRID[current] == -3):
+            showTempMaze()
+            print("YOU'RE ON FIRE!")
+            return
+
+
+        showTempMaze()
+    
+
+    print("MADE IT!")
     return
 
 # executes strategy1
-def strategy1():
+def strategy1(start,end):
 
+    global GRID
     path = AStar(start,end)
     
     if not path:
@@ -241,7 +277,7 @@ def BFS(start,end):
         # found the path
         if (current == end):
             #print ("Success!")
-            path.remove(0)
+            path.remove(start)
             return path + [current]
 
         # calculate the valid neighbors
