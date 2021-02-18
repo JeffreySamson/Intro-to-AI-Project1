@@ -32,8 +32,8 @@ def main():
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
     DIM = 10
-    PROB = 0
-    q = 0.5
+    PROB = 0.2
+    q = 0.2
 
     SIZE = DIM**2
 
@@ -72,7 +72,8 @@ def main():
     GRID[fireSeed] = -3
 
 
-    solution = DFS(start,end)
+
+    #solution = DFS(start,end)
 
     # checks if there is a solution and then marks the path
     
@@ -86,23 +87,28 @@ def main():
     print() #prints an empty line
     # generates the final solution
 
-    #showMaze()
+    mazeCopy = np.copy(GRID)
+
     strategy2(start,end)
+
+    #GRID = mazeCopy
+
+    #showMaze()
+    #strategy3(start,end)
+
 
     #showMaze()
     print()
 
-    
-
-
 
 ######################[functions]######################
 
-# keeps track of current fire and creates a new path but never expects the future
-def strategy2(start,end):
+def strategy3(start,end):
+
+
     global GRID
 
-    path = AStar(start,end)
+    path = AStarMod(start,end)
 
     if not path:
         print("No Solution")
@@ -112,14 +118,14 @@ def strategy2(start,end):
 
     while not path[0] == end:
         
-        path = AStar(current,end)
-        #print(path)
-        #print()
+        path = AStarMod(current,end)
+
 
         if (not path):
             print("SORRY NO SAFE PATH!")
             showMaze()
             return
+
 
 
         if GRID[path[0]] == 7:
@@ -129,6 +135,155 @@ def strategy2(start,end):
 
 
         current = path[0]
+
+        if current == end:
+            print("MADE IT!")
+            return
+
+        advFireOneStep()
+
+        if (GRID[current] == -3):
+            print("YOU'RE ON FIRE!")
+            GRID[current] = 6
+            showMaze()
+            return
+
+
+        showTempMaze()
+    
+
+    print("MADE IT!")
+    return
+
+# creates a new heuristic that takes into account the fire and it's neighbors
+def heu2(current,end):
+
+    global SIZE
+
+    #euclidean distance
+    dis = diagDis(current,end)
+
+    # distance from fire 
+    fire = diagDis(current,findFire(current))
+
+    if fire <= 2:
+        dis = dis + (SIZE-fire) + len(getFireNeighbors(current,GRID))
+
+    return dis
+
+def findFire(current):
+    global GRID
+
+    # creats the stack that you have already visited
+    closedSet = []
+
+    # creates the fringe stack and adds start to fringe
+    fringe = deque([(current,[])])
+
+    while fringe: # checks if the fringe is empty
+        
+        # current is the current node
+        # path keeps track of the path taken to reach current from start
+        #everything at the top of the queue will always be the shortest path
+        current, path = fringe.popleft()
+        closedSet.append(current)
+
+        # found the path
+        if (GRID[current] == -3):
+            #print ("Success!")
+            return current
+
+        # calculate the valid neighbors
+        vldneigh = getNeighbors(current) + getFireNeighbors(current,GRID)
+
+        #print('Valid Neighbors for {} is {}'.format(current,vldneigh))
+
+        for child in vldneigh:
+            if child not in closedSet:
+                # new path is path + current for this child
+                fringe.append((child,path + [current]))
+                closedSet.append(child)
+
+    #print("No Solution ")
+    return None
+
+def AStarMod(start,end):
+    
+    dist = {}
+    processed = {}
+    prev = {}
+
+    for v in range(SIZE):
+        dist[v] = math.inf
+        processed[v] = False
+        prev[v] = NONE
+
+    dist[start] =0
+    fringe = []
+    heapq.heappush(fringe,(dist[start],start,[]))
+    prev[start] = start
+    
+    while fringe: # checks if the fringe is empty
+        
+        (d,v,path) = heapq.heappop(fringe)
+        #print(fringe)
+
+        # found the path
+        if (v == end):
+            #print ("Success!")
+            return path
+        
+        if not processed[v]:
+
+            vldneigh = getNeighbors(v)
+
+            for u in vldneigh:
+                if ((d + heu2(u,end)) < dist[u]):
+                    dist[u] = d + heu2(u,end)
+                    #print('going to {} from {} is {}'.format(v,u,dist[u]))
+                    heapq.heappush(fringe,(dist[u],u,path + [u]))
+                    prev[u] = v
+            processed[v] = True
+
+    #print("No path")
+    return None
+
+# keeps track of current fire and creates a new path but never expects the future
+def strategy2(start,end):
+
+    global GRID
+
+    path = DFS(start,end)
+
+    if not path:
+        print("No Solution")
+        return
+
+    current = start
+
+    while not path[0] == end:
+        
+        path = DFS(current,end)
+
+
+        if (not path):
+            print("SORRY NO SAFE PATH!")
+            showMaze()
+            return
+
+
+
+        if GRID[path[0]] == 7:
+            GRID[path[0]] = 5
+        else:
+            GRID[path[0]] = 7
+
+
+        current = path[0]
+
+        if current == end:
+            print("MADE IT!")
+            return
 
         advFireOneStep()
 
@@ -242,8 +397,8 @@ def AStar(start,end):
             vldneigh = getNeighbors(v)
 
             for u in vldneigh:
-                if ((d + Heu(u)) < dist[u]):
-                    dist[u] = d + Heu(u)
+                if ((d + diagDis(u,end)) < dist[u]):
+                    dist[u] = d + diagDis(u,end)
                     #print('going to {} from {} is {}'.format(v,u,dist[u]))
                     heapq.heappush(fringe,(dist[u],u,path + [u]))
                     prev[u] = v
@@ -253,17 +408,21 @@ def AStar(start,end):
     return None
 
 # eucledian heuristic for AStar
-def Heu(current):
+def diagDis(current,end):
     global DIM
-    global end
 
     # heuristic is based on eucledian heuristic
     x = current % DIM
     y = current // DIM
 
+    #print(x,y)
+
+
     # goal location
-    endX = end % DIM
+    endX = (end % DIM)
     endY = end // DIM
+
+    #print(endX,endY)
 
     # distance formula on (x,y) -> (endX, endY)
     dis = math.sqrt(((x-endX)**2) + (y-endY)**2)
@@ -456,7 +615,7 @@ class showTempMaze():
         x = (screen_width/2) - (width/2)
         y = (screen_height/2) - (height/2)
         window.geometry('%dx%d+%d+%d' % (width, height, x, y))
-        window.after(450,window.destroy)
+        window.after(400,window.destroy)
         window.mainloop()
 
 # gets the left, right, up, and down neighbors in that order
@@ -529,7 +688,6 @@ def getFireNeighbors(current, mazeCopy):
             FireNeighbors.append(i)
 
     return FireNeighbors
-
 
 #___________________________________________________________________
 # RUN THE MAIN: DO NOT DELETE!
