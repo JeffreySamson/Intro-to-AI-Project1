@@ -32,16 +32,16 @@ def main():
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
     DIM = 10
-    PROB = 0.2
+    PROB = 0
     q = 0.5
 
     SIZE = DIM**2
 
     # generates random points to start
-    start = random.randint(0,SIZE-1)
-    end = random.randint(0,SIZE-1)
-    #start = 0
-    #end = SIZE - 1
+    #start = random.randint(0,SIZE-1)
+    #end = random.randint(0,SIZE-1)
+    start = 0
+    end = SIZE - 1
 
 
     #check so that start and end is not the same 
@@ -77,20 +77,20 @@ def main():
     # checks if there is a solution and then marks the path
     
     #if solution:
-        for i in solution :
-            if GRID[i] == 7 :
-                GRID[i] = 5
-            elif not ( i == start or i == end ):
-               GRID[i] = 7 # 7 = path
+    #    for i in solution :
+    #        if GRID[i] == 7 :
+    #            GRID[i] = 5
+    #        elif not ( i == start or i == end ):
+    #          GRID[i] = 7 # 7 = path
 
-    #print() #prints an empty line
+    print() #prints an empty line
     # generates the final solution
 
     #showMaze()
-    #strategy1(start,end)
+    strategy2(start,end)
 
-    showMaze()
-    #print()
+    #showMaze()
+    print()
 
     
 
@@ -117,7 +117,7 @@ def strategy2(start,end):
         #print()
 
         if (not path):
-            print("You're SURROUNDED!")
+            print("SORRY NO SAFE PATH!")
             showMaze()
             return
 
