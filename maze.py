@@ -11,6 +11,7 @@ from collections import deque
 # -1: start
 # -2: end
 # 7: path
+# 5: move back
 # -3: fire
 
 def main():
@@ -30,17 +31,17 @@ def main():
         #print ('PROB must be between 1 and 0')
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
-    DIM = 20
-    PROB = 0.1
-    q = 0.089
+    DIM = 10
+    PROB = 0.2
+    q = 0.5
 
     SIZE = DIM**2
 
     # generates random points to start
-    #start = random.randint(0,SIZE-1)
-    #end = random.randint(0,SIZE-1)
-    start = 0
-    end = SIZE - 1
+    start = random.randint(0,SIZE-1)
+    end = random.randint(0,SIZE-1)
+    #start = 0
+    #end = SIZE - 1
 
 
     #check so that start and end is not the same 
@@ -71,25 +72,25 @@ def main():
     GRID[fireSeed] = -3
 
 
-    #solution = AStar(start,end)
+    solution = DFS(start,end)
 
     # checks if there is a solution and then marks the path
     
     #if solution:
-    #    for i in solution :
-    #        if i > (SIZE -1):
-    #            print("Solution went out of bound at {}".format(i))
-    #        elif not ( i == start or i == end ):
-    #           GRID[i] = 7 # 7 = path
+        for i in solution :
+            if GRID[i] == 7 :
+                GRID[i] = 5
+            elif not ( i == start or i == end ):
+               GRID[i] = 7 # 7 = path
 
-    print() #prints an empty line
+    #print() #prints an empty line
     # generates the final solution
 
     #showMaze()
-    strategy2(start,end)
+    #strategy1(start,end)
 
-    #showMaze()
-    print()
+    showMaze()
+    #print()
 
     
 
@@ -97,8 +98,10 @@ def main():
 
 ######################[functions]######################
 
+# keeps track of current fire and creates a new path but never expects the future
 def strategy2(start,end):
     global GRID
+
     path = AStar(start,end)
 
     if not path:
@@ -110,14 +113,19 @@ def strategy2(start,end):
     while not path[0] == end:
         
         path = AStar(current,end)
+        #print(path)
+        #print()
 
         if (not path):
-            print("No path to end")
+            print("You're SURROUNDED!")
+            showMaze()
             return
 
 
-        #print(path)
-        GRID[path[0]] = 7
+        if GRID[path[0]] == 7:
+            GRID[path[0]] = 5
+        else:
+            GRID[path[0]] = 7
 
 
         current = path[0]
@@ -125,8 +133,9 @@ def strategy2(start,end):
         advFireOneStep()
 
         if (GRID[current] == -3):
-            showTempMaze()
             print("YOU'RE ON FIRE!")
+            GRID[current] = 6
+            showMaze()
             return
 
 
@@ -151,20 +160,30 @@ def strategy1(start,end):
 
     for current in range(pathLength):
 
+        if (GRID[path[current]] == -3):
+            print("YOU'RE ON FIRE!")
+            GRID[path[current]] = 6
+            showMaze()
+            return
+
         if path[current] == end:
             print("Made it!")
             return
 
         #moves the guy forward
-        GRID[path[current]] = 7
+        if GRID[path[current]] == 7:
+            GRID[path[current]] = 5
+        else:
+            GRID[path[current]] = 7
 
         # moves fire forward
         advFireOneStep()
 
         # kills guy if he is currently on fire (== -3) or if his next move is on fire
-        if (GRID[path[current]] == -3) or ( not (current == pathLength-1) and (GRID[path[current+1]] == -3)):
-            showTempMaze()
-            print("YOU'RE DEAD!")
+        if (GRID[path[current]] == -3): #or ( not (current == pathLength-1) and (GRID[path[current+1]] == -3)):
+            print("YOU'RE ON FIRE!")
+            GRID[path[current]] = 6
+            showMaze()
             return
         
         # shows the maze
@@ -322,6 +341,7 @@ def DFS(start, end):
         # found the path
         if (current == end):
             #print ("Success!")
+            path.remove(start)
             return path
         # calculate the valid neighbors
         vldneigh = getNeighbors(current)
@@ -379,6 +399,10 @@ class showMaze():
                 color = "purple" # end is purple
             elif(GRID[i] == -3):
                 color = "orangered" # on fire
+            elif(GRID[i] == 5):
+                color = "yellow" # backtrack
+            elif(GRID[i] ==6):
+                color = "firebrick" #you're on fire
             else:
                 color = "green" # path taken
             Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
@@ -415,6 +439,10 @@ class showTempMaze():
                 color = "purple" # end is purple
             elif(GRID[i] == -3):
                 color = "orangered" # on fire
+            elif(GRID[i] == 5):
+                color = "yellow" #backtrack
+            elif(GRID[i] ==6):
+                color = "firebrick" #you're on fire
             else:
                 color = "green" # path taken
             Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
@@ -444,7 +472,7 @@ def getNeighbors(current):
     down = current + DIM
 
 
-    tempNeighbors = [ up, down, right, left] # all possible neighbors
+    tempNeighbors = [ up, left, down, right ] # all possible neighbors
     neighbors = [] # valid neighbors
 
     #checks if the current is on the left edges and gets rid of left neighbor
