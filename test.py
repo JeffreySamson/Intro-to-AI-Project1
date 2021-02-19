@@ -34,9 +34,9 @@ def main():
         #print ('PROB must be between 1 and 0')
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
-    DIM = 10
+    DIM = 15
     PROB = 0
-    q = 0.1
+    q = 0
 
     SIZE = DIM**2
 
@@ -81,10 +81,9 @@ def main():
 
     #showMaze()
     #strategy3(start,end)
-    #problem2()
-    checkGrid()
-
-    problem6()
+    problem2()
+    #checkGrid()
+    #problem6()
     #showMaze()
     print()
 
@@ -97,7 +96,7 @@ def problem2():
     iterations = 100
     result = [0] * 20
     while i < 1:
-        PROB = i
+        PROB = float(str(round(i, 2)))
         print(PROB)
         result[k] = 0
         for j in range(iterations):
@@ -121,8 +120,8 @@ def problem6():
     result1 = [0] * 20
     result2 = [0] * 20
     result3 = [0] * 20
-    while i < 1:
-        q = i
+    while i <= 1:
+        q = float(str(round(i, 2)))
         print(q)
         result1[k] = 0
         result2[k] = 0
