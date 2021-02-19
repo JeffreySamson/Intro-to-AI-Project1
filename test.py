@@ -19,75 +19,83 @@ from collections import deque
 
 def main():
 
-  # global variables 
-  global SIZE
-  global DIM
-  global GRID
-  global PROB
-  global start
-  global end
-  global q
+    # global variables 
+    global SIZE
+    global DIM
+    global GRID
+    global PROB
+    global start
+    global end
+    global q
 
-  #DIM = int(input('Enter the size of the array: '))
-  #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
-  #while (PROB <0 or PROB >1):
-      #print ('PROB must be between 1 and 0')
-      #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
+    #DIM = int(input('Enter the size of the array: '))
+    #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
+    #while (PROB <0 or PROB >1):
+        #print ('PROB must be between 1 and 0')
+        #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
-  DIM = 15
-  PROB = 0.25
-  q = 0.3
+    DIM = 10
+    PROB = 0.5
+    q = 0.1
 
-  SIZE = DIM**2
+    SIZE = DIM**2
 
-  # generates random points to start
-  #start = random.randint(0,SIZE-1)
-  #end = random.randint(0,SIZE-1)
-  start = 0
-  end = SIZE - 1
-
-
-  #check so that start and end is not the same 
-  while (start == end):
-      end = random.randint(0,SIZE-1)
-
-  print()
-  print("Going from {} -> {}".format(start,end))
-
-  # runing the initial grid
-  makeGrid()
-  fireSeed = startFire()
-  FirePath = AStarFire(start,fireSeed)
-  solution = AStar(start,end)
-  #print(solution)
-  #print(FirePath)
-  while (not FirePath) or  (not solution):
-      makeGrid()
-      fireSeed = startFire()
-      FirePath = AStarFire(start,fireSeed)
-      solution = AStar(start,end)
+    # generates random points to start
+    #start = random.randint(0,SIZE-1)
+    #end = random.randint(0,SIZE-1)
+    start = 0
+    end = SIZE - 1
 
 
-  #solution = DFS(start,end)
+    #check so that start and end is not the same 
+    while (start == end):
+        end = random.randint(0,SIZE-1)
 
-  # checks if there is a solution and then marks the path
-  
-
-  print() #prints an empty line
-  # generates the final solution
-
-  #mazeCopy = np.copy(GRID)
-
-  strategy3(start,end)
-
-  #GRID = mazeCopy
-
-  #showMaze()
-  #strategy3(start,end)
+    print()
+    print("Going from {} -> {}".format(start,end))
 
 
-  #showMaze()
-  print()
+    '''fireSeed = startFire()
+    FirePath = AStarFire(start,fireSeed)
+    solution = AStar(start,end)
+    #print(solution)
+    #print(FirePath)
+    while (not FirePath) or  (not solution):
+        makeGrid()
+        fireSeed = startFire()
+        FirePath = AStarFire(start,fireSeed)
+        solution = AStar(start,end)'''
+
+
+    #solution = DFS(start,end)
+
+    # checks if there is a solution and then marks the path
+
+
+    print() #prints an empty line
+    # generates the final solution
+
+    #mazeCopy = np.copy(GRID)
+
+    makeGrid()
+
+    empty = SIZE - sum(GRID) -5
+
+    while (not empty == PROB*SIZE) or (not AStar(start,end)):
+        makeGrid()
+        empty = SIZE - sum(GRID) -5
+
+    
+    showMaze()
+
+    #GRID = mazeCopy
+
+    #showMaze()
+    #strategy3(start,end)
+
+
+    #showMaze()
+    print()
 
 ######################[functions]######################
 def startFire():
@@ -136,23 +144,6 @@ def paintGRID(path):
       showTempMaze()
 
   return
-
-def pickColor(current):
-
-  global GRID
-
-  if GRID[current] == 1:
-    color = 7
-  elif GRID[current] == 7:
-    color = 5
-  elif GRID[current] ==5:
-    color = 2
-  elif GRID[current] == 2:
-    color = 3
-  else: 
-    color =7
-
-  return color
 
 def strategy3(start,end):
 
@@ -420,16 +411,13 @@ def strategy1(start,end):
           return
 
       #moves the guy forward
-      if GRID[path[current]] == 7:
-          GRID[path[current]] = 5
-      else:
-          GRID[path[current]] = 7
+      GRID[path[current]] = pickColor(path[current])
 
       # moves fire forward
       advFireOneStep()
 
       # kills guy if he is currently on fire (== -3) or if his next move is on fire
-      if (GRID[path[current]] == -3): #or ( not (current == pathLength-1) and (GRID[path[current+1]] == -3)):
+      if (GRID[path[current]] == -3):
           print("YOU'RE ON FIRE!")
           GRID[path[current]] = 6
           showMaze()
@@ -609,29 +597,41 @@ def DFS(start, end):
       closedSet.append(current)
   #print("No Solution ")
   return None
-    
+
+def pickColor(current):
+
+  global GRID
+
+  if GRID[current] == 1:
+    color = 7
+  elif GRID[current] == 7:
+    color = 5
+  elif GRID[current] ==5:
+    color = 2
+  elif GRID[current] == 2:
+    color = 3
+  else: 
+    color =7
+
+  return color
+
 # makes the grid using the probability and the size
 def makeGrid():
-  global SIZE
-  global DIM
-  global GRID
-  global start
-  global end
+    global SIZE
+    global PROB
+    global GRID
+    global start
+    global end
 
-  GRID = np.ones(DIM**2)
+    GRID = np.ones(DIM**2)
 
-  numEmpty = (SIZE)*PROB
-  numEmpty = int(round(numEmpty))
+    GRID[start] = -1
+    GRID[end] = -2
 
-  GRID[start] = -1
-  GRID[end] = -2
-
-  c = 0
-  while c < numEmpty :
-      temp = random.randint(0,SIZE-1)
-      if (GRID[temp] == 1 and not(temp ==0) and not(temp == SIZE -1)):
-          GRID[temp] = 0
-          c +=1
+    for i in range(SIZE):
+        if  ( not i == start ) and (not i == end):
+            if (random.random() <= PROB):
+                GRID[i] =0
 
 # makes the visual canvas for the grid
 class showMaze():
@@ -658,9 +658,9 @@ class showMaze():
           elif(GRID[i] ==6):
               color = "firebrick" #you're on fire
           elif(GRID[i] == 2):
-              color = "purple"
+              color = "hotpink" # double backtrack
           elif(GRID[i] == 3):
-              color = "grey"
+              color = "grey" # triple backtrack
           else:
               color = "green" # path taken
           Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
@@ -702,9 +702,9 @@ class showTempMaze():
         elif(GRID[i] ==6):
             color = "firebrick" #you're on fire
         elif(GRID[i] == 2):
-            color = "purple"
+            color = "hotpink" # double backtrack
         elif(GRID[i] == 3):
-            color = "grey"
+            color = "grey"  # triple backtrack
         else:
             color = "green" # path taken
         Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
