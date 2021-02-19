@@ -25,24 +25,41 @@ def main():
     global end
     global q
 
-    #DIM = int(input('Enter the size of the array: '))
-    #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
-    #while (PROB <0 or PROB >1):
-        #print ('PROB must be between 1 and 0')
-        #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
+    # Recieving User input for our variables 
+    DIM = int(input('Enter the size of the array: '))
+    while DIM < 0:
+        print("DIM cannot be less than 0.\n")
+        DIM = int(input('Enter the size of the array: \n'))
+    PROB = float(input('Enter the probability of an element being a 1 or 0: \n'))
+        # pobablility has to be a decimal value
+    while (PROB <0 or PROB >1):
+        print ('PROB must be between 1 and 0')
+        PROB = float(input('Enter the probability of an element being a 1 or 0: \n'))
+    
+   
 
-    DIM = 10
-    PROB = 0.2
-    q = 0.2
+    # INSERT START AND END POINTS
+   
+
+    #DIM = 10
+    #PROB = 0.2
+    #q = 0.2
 
     SIZE = DIM**2
 
-    # generates random points to start
-    #start = random.randint(0,SIZE-1)
-    #end = random.randint(0,SIZE-1)
-    start = 0
-    end = SIZE - 1
-
+    startEnd = input('Random or default start and end? \n(Default is upper-left for start and bottom-right for end) \n(Enter random or default): \n').casefold().strip()
+    while not ((startEnd == 'random') or (startEnd == 'default')):
+        print ('Must enter random or default')
+        startEnd = input('Random or default start and end (Default is upper-left for start and bottom-right for end) (Enter random or default): ')
+    if (startEnd == 'random'):
+        # generates random points to start
+        start = random.randint(0,SIZE-1)
+        end = random.randint(0,SIZE-1)
+    else:
+        start = 0
+        end = SIZE - 1
+    #start = 0
+    #end = SIZE - 1
 
     #check so that start and end is not the same 
     while (start == end):
@@ -63,13 +80,6 @@ def main():
     #print(solution)
 
     
-    fireSeed = random.randint(0,SIZE-1)
-
-    while (GRID[fireSeed] == 0 or fireSeed == SIZE-1):
-        fireSeed = random.randint(0,SIZE-1)
-
-    #print(f"FireSeed is {fireSeed}")
-    GRID[fireSeed] = -3
 
 
 
@@ -89,7 +99,72 @@ def main():
 
     mazeCopy = np.copy(GRID)
 
-    strategy2(start,end)
+    print()
+
+    #strategy2(start,end)
+    exit = False
+    while not exit:
+        searchOrStrat = (input('Would you like to see a search type or strategy? (search type / strategy) \n')).casefold().strip()
+        if searchOrStrat == 'search type':
+            print()
+            searchType = input('Enter which search type you would like to use (BFS, DFS, Astar): \n').casefold().strip()
+            if searchType == "dfs":
+                path = DFS(start,end)
+                if path:
+                    #print(path)
+                    paintGRID(path)
+                else: 
+                    print("No path")
+                exit = True
+            elif searchType == "bfs":
+                path = BFS(start,end)
+                if path:
+                    paintGRID(path)
+                else: 
+                    print("No path")
+                exit = True
+            elif searchType == "astar":
+                path = AStar(start,end)
+                if path :
+                    paintGRID(path)
+                else:
+                    print("No path!")
+                exit = True
+            else: print("Not a valid search type.")
+
+        elif searchOrStrat == 'strategy':
+            q = float(input('Enter the flammability rate: \n'))
+                # pobablility has to be a decimal value
+            while (q <0 or q >1):
+                print ('Flammability rate must be between 1 and 0')
+                q = float(input('Enter the flammability rat: \n'))
+            
+            
+            # randomly starts the fire
+            fireSeed = random.randint(0,SIZE-1)
+
+            # fire can't start at the beginning or end
+            while (GRID[fireSeed] == 0 or fireSeed == SIZE-1):
+                fireSeed = random.randint(0,SIZE-1)
+
+            #print(f"FireSeed is {fireSeed}")
+            GRID[fireSeed] = -3
+
+            print()
+            strategy = int(input('Enter which strategy you would like to use (1, 2, 3): \n'))
+            if strategy == 1:
+                strategy1(start,end)
+                exit = True
+            elif strategy == 2:
+                strategy2(start,end)
+                exit = True
+            elif strategy == 3:
+                strategy3(start,end)
+                exit = True
+            else: print("Not a valid strategy")
+
+        else:
+            print("Oops something went wrong. Try again!")
 
     #GRID = mazeCopy
 
@@ -103,11 +178,34 @@ def main():
 
 ######################[functions]######################
 
+def paintGRID(path):
+
+    global GRID
+
+    showTempMaze()
+
+    for i in path:
+
+        if (i not in getNeighbors(i-1)) :
+            
+            backtrack = BFS(i-1,i)
+            
+            for j in backtrack:
+                GRID[i]= 5
+
+        else:
+            GRID[i] = 7
+
+        showTempMaze()
+    return
+
+
 def strategy3(start,end):
 
 
     global GRID
 
+    # initial search to see if there is a solution
     path = AStarMod(start,end)
 
     if not path:
@@ -118,6 +216,7 @@ def strategy3(start,end):
 
     while not path[0] == end:
         
+        # checks the shortest path each time
         path = AStarMod(current,end)
 
 
@@ -253,7 +352,8 @@ def strategy2(start,end):
 
     global GRID
 
-    path = DFS(start,end)
+    # change this
+    path = AStar(start,end)
 
     if not path:
         print("No Solution")
@@ -263,7 +363,8 @@ def strategy2(start,end):
 
     while not path[0] == end:
         
-        path = DFS(current,end)
+        #change this
+        path = AStar(current,end)
 
 
         if (not path):
@@ -304,6 +405,7 @@ def strategy2(start,end):
 def strategy1(start,end):
 
     global GRID
+    # initial search
     path = AStar(start,end)
     
     if not path:
@@ -477,7 +579,7 @@ def DFS(start, end):
     # checks if the start and the goal is not empty 
     if (GRID[start] == 0 or GRID[end] == 0):
         print("Invalid start or end")
-        return
+        return None
 
     # creates the fringe stack
     fringe = deque() 
@@ -510,7 +612,7 @@ def DFS(start, end):
             # checks in child is already in the closed set
             if child not in closedSet:
                 fringe.append(child)
-                #path.append(current)
+        path.append(current)
         closedSet.append(current)
     #print("No Solution ")
     return None
@@ -631,7 +733,7 @@ def getNeighbors(current):
     down = current + DIM
 
 
-    tempNeighbors = [ up, left, down, right ] # all possible neighbors
+    tempNeighbors = [ up, down, left, right ] # all possible neighbors
     neighbors = [] # valid neighbors
 
     #checks if the current is on the left edges and gets rid of left neighbor
