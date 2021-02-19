@@ -55,7 +55,7 @@ def main():
     print("Going from {} -> {}".format(start,end))
 
 
-    '''fireSeed = startFire()
+    fireSeed = startFire()
     FirePath = AStarFire(start,fireSeed)
     solution = AStar(start,end)
     #print(solution)
@@ -64,7 +64,7 @@ def main():
         makeGrid()
         fireSeed = startFire()
         FirePath = AStarFire(start,fireSeed)
-        solution = AStar(start,end)'''
+        solution = AStar(start,end)
 
 
     #solution = DFS(start,end)
@@ -77,7 +77,7 @@ def main():
 
     #mazeCopy = np.copy(GRID)
 
-    makeGrid()
+    '''makeGrid()
 
     empty = SIZE - sum(GRID) -5
 
@@ -86,7 +86,7 @@ def main():
         empty = SIZE - sum(GRID) -5
 
     
-    showMaze()
+    showMaze()'''
 
     #GRID = mazeCopy
 
