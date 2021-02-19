@@ -8,11 +8,13 @@ import heapq
 from collections import deque
 
 # 0: blocked
+#1: avaliable block
 # -1: start
 # -2: end
-# 7: path
+# -3: maze fire
 # 5: move back
-# -3: fire
+# 6: on fire
+# 7: path
 
 def main():
 
@@ -31,8 +33,8 @@ def main():
         #print ('PROB must be between 1 and 0')
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
-    DIM = 10
-    PROB = 0.3
+    DIM = 15
+    PROB = 0.25
     q = 0.2
 
     SIZE = DIM**2
@@ -82,11 +84,12 @@ def main():
     print() #prints an empty line
     # generates the final solution
 
-    mazeCopy = np.copy(GRID)
+    #mazeCopy = np.copy(GRID)
 
     path = DFS(start,end)
+
     if path:
-      print(path)
+      #print(path)
       paintGRID(path)
     else:
       print("no path")
@@ -111,77 +114,97 @@ def paintGRID(path):
   
   length = len(path)
 
-  path = [0] + path
-
   for i in range(length):
 
-      print(f"{i} has neighbors {getNeighbors(i)}")
+    #print(f"{path[i]} has neighbors {getNeighbors(path[i])}")
 
-      if (path[i] not in getNeighbors(path[i-1])) :
-        print("here")
+    if (i>1 and (path[i] not in getNeighbors(path[i-1]) ) ) :
 
-        backtrack = BFS(path[i-1],path[i])
+      if(path[i] == path[i-1]):
+        GRID[path[i]] = GRID[path[i]]
+
+      else:
+        backtrack = AStar(path[i-1],path[i])
 
         for j in backtrack:
-          GRID[j]= 5
+          GRID[j]= pickColor(j)
+          showTempMaze()
 
-        else:
-            GRID[path[i]] = 7
+    else:
+      GRID[path[i]] = pickColor(path[i])
+    showTempMaze()
 
-      showTempMaze()
   return
+
+def pickColor(current):
+
+  global GRID
+
+  if GRID[current] == 1:
+    color = 7
+  elif GRID[current] == 7:
+    color = 5
+  elif GRID[current] ==5:
+    color = 2
+  elif GRID[current] == 2:
+    color = 3
+  else: 
+    color =7
+
+  return color
+
 
 def strategy3(start,end):
 
 
-    global GRID
+  global GRID
 
-    path = AStarMod(start,end)
+  path = AStarMod(start,end)
 
-    if not path:
-        print("No Solution")
-        return
+  if not path:
+      print("No Solution")
+      return
 
-    current = start
+  current = start
 
-    while not path[0] == end:
-        
-        path = AStarMod(current,end)
-
-
-        if (not path):
-            print("SORRY NO SAFE PATH!")
-            showMaze()
-            return
+  while not path[0] == end:
+      
+      path = AStarMod(current,end)
 
 
-
-        if GRID[path[0]] == 7:
-            GRID[path[0]] = 5
-        else:
-            GRID[path[0]] = 7
-
-
-        current = path[0]
-
-        if current == end:
-            print("MADE IT!")
-            return
-
-        advFireOneStep()
-
-        if (GRID[current] == -3):
-            print("YOU'RE ON FIRE!")
-            GRID[current] = 6
-            showMaze()
-            return
+      if (not path):
+          print("SORRY NO SAFE PATH!")
+          showMaze()
+          return
 
 
-        showTempMaze()
-    
 
-    print("MADE IT!")
-    return
+      if GRID[path[0]] == 7:
+          GRID[path[0]] = 5
+      else:
+          GRID[path[0]] = 7
+
+
+      current = path[0]
+
+      if current == end:
+          print("MADE IT!")
+          return
+
+      advFireOneStep()
+
+      if (GRID[current] == -3):
+          print("YOU'RE ON FIRE!")
+          GRID[current] = 6
+          showMaze()
+          return
+
+
+      showTempMaze()
+  
+
+  print("MADE IT!")
+  return
 
 # creates a new heuristic that takes into account the fire and it's neighbors
 def heu2(current,end):
@@ -200,177 +223,141 @@ def heu2(current,end):
     return dis
 
 def findFire(current):
-    global GRID
+  
+  dist = {}
+  processed = {}
+  prev = {}
 
-    # creats the stack that you have already visited
-    closedSet = []
+  for v in range(SIZE):
+      dist[v] = math.inf
+      processed[v] = False
+      prev[v] = NONE
 
-    # creates the fringe stack and adds start to fringe
-    fringe = deque([(current,[])])
+  dist[start] =0
+  fringe = []
+  heapq.heappush(fringe,(dist[start],start,[]))
+  prev[start] = start
+  
+  while fringe: # checks if the fringe is empty
+      
+      (d,v,path) = heapq.heappop(fringe)
+      #print(fringe)
 
-    while fringe: # checks if the fringe is empty
-        
-        # current is the current node
-        # path keeps track of the path taken to reach current from start
-        #everything at the top of the queue will always be the shortest path
-        current, path = fringe.popleft()
-        closedSet.append(current)
+      # found the path
+      if (v == end):
+          #print ("Success!")
+          return path
+      
+      if not processed[v]:
 
-        # found the path
-        if (GRID[current] == -3):
-            #print ("Success!")
-            return current
+          vldneigh = getNeighbors(v)
 
-        # calculate the valid neighbors
-        vldneigh = getNeighbors(current) + getFireNeighbors(current,GRID)
+          for u in vldneigh:
+              if ((d + heu2(u,end)) < dist[u]):
+                  dist[u] = d + heu2(u,end)
+                  #print('going to {} from {} is {}'.format(v,u,dist[u]))
+                  heapq.heappush(fringe,(dist[u],u,path + [u]))
+                  prev[u] = v
+          processed[v] = True
 
-        #print('Valid Neighbors for {} is {}'.format(current,vldneigh))
-
-        for child in vldneigh:
-            if child not in closedSet:
-                # new path is path + current for this child
-                fringe.append((child,path + [current]))
-                closedSet.append(child)
-
-    #print("No Solution ")
-    return None
-
-def AStarMod(start,end):
-    
-    dist = {}
-    processed = {}
-    prev = {}
-
-    for v in range(SIZE):
-        dist[v] = math.inf
-        processed[v] = False
-        prev[v] = NONE
-
-    dist[start] =0
-    fringe = []
-    heapq.heappush(fringe,(dist[start],start,[]))
-    prev[start] = start
-    
-    while fringe: # checks if the fringe is empty
-        
-        (d,v,path) = heapq.heappop(fringe)
-        #print(fringe)
-
-        # found the path
-        if (v == end):
-            #print ("Success!")
-            return path
-        
-        if not processed[v]:
-
-            vldneigh = getNeighbors(v)
-
-            for u in vldneigh:
-                if ((d + heu2(u,end)) < dist[u]):
-                    dist[u] = d + heu2(u,end)
-                    #print('going to {} from {} is {}'.format(v,u,dist[u]))
-                    heapq.heappush(fringe,(dist[u],u,path + [u]))
-                    prev[u] = v
-            processed[v] = True
-
-    #print("No path")
-    return None
+  #print("No path")
+  return None
 
 # keeps track of current fire and creates a new path but never expects the future
 def strategy2(start,end):
 
-    global GRID
+  global GRID
 
-    path = DFS(start,end)
+  path = DFS(start,end)
 
-    if not path:
-        print("No Solution")
-        return
+  if not path:
+      print("No Solution")
+      return
 
-    current = start
+  current = start
 
-    while not path[0] == end:
-        
-        path = DFS(current,end)
-
-
-        if (not path):
-            print("SORRY NO SAFE PATH!")
-            showMaze()
-            return
+  while not path[0] == end:
+      
+      path = DFS(current,end)
 
 
-
-        if GRID[path[0]] == 7:
-            GRID[path[0]] = 5
-        else:
-            GRID[path[0]] = 7
-
-
-        current = path[0]
-
-        if current == end:
-            print("MADE IT!")
-            return
-
-        advFireOneStep()
-
-        if (GRID[current] == -3):
-            print("YOU'RE ON FIRE!")
-            GRID[current] = 6
-            showMaze()
-            return
+      if (not path):
+          print("SORRY NO SAFE PATH!")
+          showMaze()
+          return
 
 
-        showTempMaze()
-    
 
-    print("MADE IT!")
-    return
+      if GRID[path[0]] == 7:
+          GRID[path[0]] = 5
+      else:
+          GRID[path[0]] = 7
+
+
+      current = path[0]
+
+      if current == end:
+          print("MADE IT!")
+          return
+
+      advFireOneStep()
+
+      if (GRID[current] == -3):
+          print("YOU'RE ON FIRE!")
+          GRID[current] = 6
+          showMaze()
+          return
+
+
+      showTempMaze()
+  
+
+  print("MADE IT!")
+  return
 
 # executes strategy1
 def strategy1(start,end):
 
-    global GRID
-    path = AStar(start,end)
-    
-    if not path:
-        print("No solution")
-        return
+  global GRID
+  path = AStar(start,end)
+  
+  if not path:
+      print("No solution")
+      return
 
-    pathLength = len(path)
-    #print(path)
+  pathLength = len(path)
+  #print(path)
 
-    for current in range(pathLength):
+  for current in range(pathLength):
 
-        if (GRID[path[current]] == -3):
-            print("YOU'RE ON FIRE!")
-            GRID[path[current]] = 6
-            showMaze()
-            return
+      if (GRID[path[current]] == -3):
+          print("YOU'RE ON FIRE!")
+          GRID[path[current]] = 6
+          showMaze()
+          return
 
-        if path[current] == end:
-            print("Made it!")
-            return
+      if path[current] == end:
+          print("Made it!")
+          return
 
-        #moves the guy forward
-        if GRID[path[current]] == 7:
-            GRID[path[current]] = 5
-        else:
-            GRID[path[current]] = 7
+      #moves the guy forward
+      if GRID[path[current]] == 7:
+          GRID[path[current]] = 5
+      else:
+          GRID[path[current]] = 7
 
-        # moves fire forward
-        advFireOneStep()
+      # moves fire forward
+      advFireOneStep()
 
-        # kills guy if he is currently on fire (== -3) or if his next move is on fire
-        if (GRID[path[current]] == -3): #or ( not (current == pathLength-1) and (GRID[path[current+1]] == -3)):
-            print("YOU'RE ON FIRE!")
-            GRID[path[current]] = 6
-            showMaze()
-            return
-        
-        # shows the maze
-        showTempMaze()
+      # kills guy if he is currently on fire (== -3) or if his next move is on fire
+      if (GRID[path[current]] == -3): #or ( not (current == pathLength-1) and (GRID[path[current+1]] == -3)):
+          print("YOU'RE ON FIRE!")
+          GRID[path[current]] = 6
+          showMaze()
+          return
+      
+      # shows the maze
+      showTempMaze()
 
 #advances the fire by one step
 def advFireOneStep():
@@ -590,6 +577,10 @@ class showMaze():
                 color = "yellow" # backtrack
             elif(GRID[i] ==6):
                 color = "firebrick" #you're on fire
+            elif(GRID[i] == 2):
+                color = "purple"
+            elif(GRID[i] == 3):
+                color = "grey"
             else:
                 color = "green" # path taken
             Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
@@ -630,6 +621,10 @@ class showTempMaze():
                 color = "yellow" #backtrack
             elif(GRID[i] ==6):
                 color = "firebrick" #you're on fire
+            elif(GRID[i] == 2):
+                color = "purple"
+            elif(GRID[i] == 3):
+                color = "grey"
             else:
                 color = "green" # path taken
             Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
@@ -643,7 +638,7 @@ class showTempMaze():
         x = (screen_width/2) - (width/2)
         y = (screen_height/2) - (height/2)
         window.geometry('%dx%d+%d+%d' % (width, height, x, y))
-        window.after(400,window.destroy)
+        window.after(600,window.destroy)
         window.mainloop()
 
 # gets the left, right, up, and down neighbors in that order
@@ -659,7 +654,7 @@ def getNeighbors(current):
     down = current + DIM
 
 
-    tempNeighbors = [ up, left, down, right ] # all possible neighbors
+    tempNeighbors = [ left, right, up, down ] # all possible neighbors
     neighbors = [] # valid neighbors
 
     #checks if the current is on the left edges and gets rid of left neighbor

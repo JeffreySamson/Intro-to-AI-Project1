@@ -10,9 +10,10 @@ from collections import deque
 # 0: blocked
 # -1: start
 # -2: end
-# 7: path
 # 5: move back
-# -3: fire
+# 6: on fire
+# -3: maze fire
+# 7: path
 
 def main():
 
@@ -175,7 +176,6 @@ def main():
     #showMaze()
     print()
 
-
 ######################[functions]######################
 
 def paintGRID(path):
@@ -189,7 +189,7 @@ def paintGRID(path):
         if (i not in getNeighbors(i-1)) :
             
             backtrack = BFS(i-1,i)
-            
+
             for j in backtrack:
                 GRID[i]= 5
 
@@ -198,7 +198,6 @@ def paintGRID(path):
 
         showTempMaze()
     return
-
 
 def strategy3(start,end):
 
@@ -271,39 +270,44 @@ def heu2(current,end):
     return dis
 
 def findFire(current):
-    global GRID
+    
+    dist = {}
+    processed = {}
+    prev = {}
 
-    # creats the stack that you have already visited
-    closedSet = []
+    for v in range(SIZE):
+        dist[v] = math.inf
+        processed[v] = False
+        prev[v] = NONE
 
-    # creates the fringe stack and adds start to fringe
-    fringe = deque([(current,[])])
-
+    dist[start] =0
+    fringe = []
+    heapq.heappush(fringe,(dist[start],start,[]))
+    prev[start] = start
+    
     while fringe: # checks if the fringe is empty
         
-        # current is the current node
-        # path keeps track of the path taken to reach current from start
-        #everything at the top of the queue will always be the shortest path
-        current, path = fringe.popleft()
-        closedSet.append(current)
+        (d,v,path) = heapq.heappop(fringe)
+        #print(fringe)
 
         # found the path
-        if (GRID[current] == -3):
+        if (GRID[v] == -3):
             #print ("Success!")
-            return current
+            return path
+        
+        if not processed[v]:
 
-        # calculate the valid neighbors
-        vldneigh = getNeighbors(current) + getFireNeighbors(current,GRID)
+            vldneigh = getNeighbors(v)
 
-        #print('Valid Neighbors for {} is {}'.format(current,vldneigh))
+            for u in vldneigh:
+                if ((d + heu2(u,end)) < dist[u]):
+                    dist[u] = d + heu2(u,end)
+                    #print('going to {} from {} is {}'.format(v,u,dist[u]))
+                    heapq.heappush(fringe,(dist[u],u,path + [u]))
+                    prev[u] = v
+            processed[v] = True
 
-        for child in vldneigh:
-            if child not in closedSet:
-                # new path is path + current for this child
-                fringe.append((child,path + [current]))
-                closedSet.append(child)
-
-    #print("No Solution ")
+    #print("No path")
     return None
 
 def AStarMod(start,end):
