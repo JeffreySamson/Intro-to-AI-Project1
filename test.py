@@ -34,9 +34,9 @@ def main():
         #print ('PROB must be between 1 and 0')
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
-    DIM = 15
-    PROB = 0.25
-    q = 0.3
+    DIM = 10
+    PROB = 0.5
+    q = 0.1
 
     SIZE = DIM**2
 
@@ -71,14 +71,23 @@ def main():
     #solution = DFS(start,end)
 
     # checks if there is a solution and then marks the path
-    
+
 
     print() #prints an empty line
     # generates the final solution
 
     #mazeCopy = np.copy(GRID)
 
-    strategy3(start,end)
+    '''makeGrid()
+
+    empty = SIZE - sum(GRID) -5
+
+    while (not empty == PROB*SIZE) or (not AStar(start,end)):
+        makeGrid()
+        empty = SIZE - sum(GRID) -5
+
+    
+    showMaze()'''
 
     #GRID = mazeCopy
 
@@ -88,8 +97,6 @@ def main():
 
     #showMaze()
     print()
-    
-    mazeCopy = np.copy(GRID)
 
     path = DFS(start,end)
     """if path:
@@ -206,23 +213,6 @@ def paintGRID(path):
             showTempMaze()
 
     return
-
-def pickColor(current):
-
-    global GRID
-
-    if GRID[current] == 1:
-        color = 7
-    elif GRID[current] == 7:
-        color = 5
-    elif GRID[current] ==5:
-        color = 2
-    elif GRID[current] == 2:
-        color = 3
-    else: 
-        color =7
-
-    return color
 
 def strategy3(start,end):
 
@@ -679,6 +669,23 @@ def DFS(start, end):
         closedSet.append(current)
     #print("No Solution ")
     return None
+
+def pickColor(current):
+
+    global GRID
+
+    if GRID[current] == 1:
+        color = 7
+    elif GRID[current] == 7:
+        color = 5
+    elif GRID[current] ==5:
+        color = 2
+    elif GRID[current] == 2:
+        color = 3
+    else: 
+        color =7
+
+    return color
     
 # makes the grid using the probability and the size
 def makeGrid():
@@ -690,18 +697,13 @@ def makeGrid():
 
     GRID = np.ones(DIM**2)
 
-    numEmpty = (SIZE)*PROB
-    numEmpty = int(round(numEmpty))
-
     GRID[start] = -1
     GRID[end] = -2
 
-    c = 0
-    while c < numEmpty :
-        temp = random.randint(0,SIZE-1)
-        if (GRID[temp] == 1 and not(temp ==0) and not(temp == SIZE -1)):
-            GRID[temp] = 0
-            c +=1
+    for i in range(SIZE):
+        if  ( not i == start ) and (not i == end):
+            if (random.random() <= PROB):
+                GRID[i] =0
 
 # makes the visual canvas for the grid
 class showMaze():
@@ -728,9 +730,9 @@ class showMaze():
             elif(GRID[i] ==6):
                 color = "firebrick" #you're on fire
             elif(GRID[i] == 2):
-                color = "purple"
+                color = "hotpink" # double backtrack
             elif(GRID[i] == 3):
-                color = "grey"
+                color = "grey" # triple backtrack
             else:
                 color = "green" # path taken
             Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
@@ -748,6 +750,7 @@ class showMaze():
 
 # psuedo animating the maze move
 class showTempMaze():
+
     def __init__(self):
         global DIM
         # makes the window for the maze
@@ -771,9 +774,9 @@ class showTempMaze():
             elif(GRID[i] ==6):
                 color = "firebrick" #you're on fire
             elif(GRID[i] == 2):
-                color = "purple"
+                color = "hotpink" # double backtrack
             elif(GRID[i] == 3):
-                color = "grey"
+                color = "grey"  # triple backtrack
             else:
                 color = "green" # path taken
             Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
