@@ -18,7 +18,7 @@ from collections import deque
 # 7: path
 
 def main():
-
+    # hello
     # global variables 
     global SIZE
     global DIM
@@ -693,7 +693,6 @@ def checkGrid():
 
 
     return
-
 
 # makes the visual canvas for the grid
 class showMaze():
