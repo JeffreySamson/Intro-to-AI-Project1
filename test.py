@@ -128,12 +128,18 @@ def problem6():
         result3[k] = 0
         for j in range(iterations):
             checkGrid()
+            copyMaze = np.copy(GRID)
+
             if (strategy1(start, end)):
                 result1[k] = result1[k] + 1
+                GRID = np.copy(copyMaze)
             if (strategy2(start, end)):
                 result2[k] = result2[k] + 1
+                GRID = np.copy(copyMaze)
             if (strategy3(start, end)):
                 result3[k] = result3[k] + 1
+                GRID = np.copy(copyMaze)
+
         k = k + 1
         i = i + 0.05
     print("Dimension size is", DIM, "and there were", iterations, "iterations done")
