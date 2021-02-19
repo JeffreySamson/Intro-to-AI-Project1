@@ -35,7 +35,7 @@ def main():
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
     DIM = 10
-    PROB = 0.5
+    PROB = 0
     q = 0.1
 
     SIZE = DIM**2
@@ -53,18 +53,6 @@ def main():
 
     print()
     print("Going from {} -> {}".format(start,end))
-
-    makeGrid()
-    fireSeed = startFire()
-    FirePath = AStarFire(start,fireSeed)
-    solution = AStar(start,end)
-    #print(solution)
-    #print(FirePath)
-    while (not FirePath) or  (not solution):
-        makeGrid()
-        fireSeed = startFire()
-        FirePath = AStarFire(start,fireSeed)
-        solution = AStar(start,end)
 
 
     #solution = DFS(start,end)
@@ -94,6 +82,8 @@ def main():
     #showMaze()
     #strategy3(start,end)
     #problem2()
+    checkGrid()
+
     problem6()
     #showMaze()
     print()
@@ -137,7 +127,7 @@ def problem6():
         result2[k] = 0
         result3[k] = 0
         for j in range(iterations):
-            makeGrid()
+            checkGrid()
             if (strategy1(start, end)):
                 result1[k] = result1[k] + 1
             if (strategy2(start, end)):
@@ -392,7 +382,7 @@ def strategy2(start,end):
 
   global GRID
 
-  path = DFS(start,end)
+  path = AStar(start,end)
 
   if not path:
       print("No Solution")
@@ -402,7 +392,7 @@ def strategy2(start,end):
 
   while not path[0] == end:
       
-      path = DFS(current,end)
+      path = AStar(current,end)
 
 
       if (not path):
@@ -455,7 +445,7 @@ def strategy1(start,end):
   for current in range(pathLength):
 
       if (GRID[path[current]] == -3):
-          print("YOU'RE ON FIRE!")
+          print("Stragie: YOU'RE ON FIRE!")
           GRID[path[current]] = 6
           showMaze()
           return
@@ -686,6 +676,24 @@ def makeGrid():
         if  ( not i == start ) and (not i == end):
             if (random.random() <= PROB):
                 GRID[i] =0
+
+def checkGrid():
+
+    makeGrid()
+    fireSeed = startFire()
+    FirePath = AStarFire(start,fireSeed)
+    solution = AStar(start,end)
+    #print(solution)
+    #print(FirePath)
+    while (not FirePath) or  (not solution):
+        makeGrid()
+        fireSeed = startFire()
+        FirePath = AStarFire(start,fireSeed)
+        solution = AStar(start,end)
+
+
+    return
+
 
 # makes the visual canvas for the grid
 class showMaze():
