@@ -10,9 +10,10 @@ from collections import deque
 # 0: blocked
 # -1: start
 # -2: end
-# 7: path
 # 5: move back
-# -3: fire
+# 6: on fire
+# -3: maze fire
+# 7: path
 
 def main():
 
@@ -24,6 +25,7 @@ def main():
     global start
     global end
     global q
+    global fireSeed
 
     # Recieving User input for our variables 
     DIM = int(input('Enter the size of the array: '))
@@ -32,11 +34,10 @@ def main():
         DIM = int(input('Enter the size of the array: \n'))
     PROB = float(input('Enter the probability of an element being a 1 or 0: \n'))
         # pobablility has to be a decimal value
-    while (PROB <0 or PROB >1):
+    while (PROB < 0 or PROB >1):
         print ('PROB must be between 1 and 0')
         PROB = float(input('Enter the probability of an element being a 1 or 0: \n'))
-    
-   
+     
 
     # INSERT START AND END POINTS
    
@@ -68,36 +69,6 @@ def main():
     print()
     print("Going from {} -> {}".format(start,end))
 
-    # runing the initial grid
-    makeGrid()
-    # shows how the initial grid looks like
-
-
-    # runs search
-    #solution = AStar(start, end)
-    #print(solution)
-
-    #print(solution)
-
-    
-
-
-
-    #solution = DFS(start,end)
-
-    # checks if there is a solution and then marks the path
-    
-    #if solution:
-    #    for i in solution :
-    #        if GRID[i] == 7 :
-    #            GRID[i] = 5
-    #        elif not ( i == start or i == end ):
-    #          GRID[i] = 7 # 7 = path
-
-    print() #prints an empty line
-    # generates the final solution
-
-    mazeCopy = np.copy(GRID)
 
     print()
 
@@ -107,28 +78,27 @@ def main():
         searchOrStrat = (input('Would you like to see a search type or strategy? (search type / strategy) \n')).casefold().strip()
         if searchOrStrat == 'search type':
             print()
+
+            #makes the Grid and also make sure there is a solution
+            makeGrid()
+            solution = AStar(start,end)
+            while (not solution):
+                makeGrid()
+                solution = AStar(start,end)
+
+
             searchType = input('Enter which search type you would like to use (BFS, DFS, Astar): \n').casefold().strip()
             if searchType == "dfs":
                 path = DFS(start,end)
-                if path:
-                    #print(path)
-                    paintGRID(path)
-                else: 
-                    print("No path")
+                paintGRID(path)
                 exit = True
             elif searchType == "bfs":
                 path = BFS(start,end)
-                if path:
-                    paintGRID(path)
-                else: 
-                    print("No path")
+                paintGRID(path)
                 exit = True
             elif searchType == "astar":
                 path = AStar(start,end)
-                if path :
-                    paintGRID(path)
-                else:
-                    print("No path!")
+                paintGRID(path)
                 exit = True
             else: print("Not a valid search type.")
 
@@ -139,18 +109,23 @@ def main():
                 print ('Flammability rate must be between 1 and 0')
                 q = float(input('Enter the flammability rat: \n'))
             
+
+            #Makes Sure that the fire can reach the man and there is a solution
             
             # randomly starts the fire
-            fireSeed = random.randint(0,SIZE-1)
+            makeGrid()
+            fireSeed = startFire()
+            FirePath = AStarFire(start,fireSeed)
+            solution = AStar(start,end)
+            #print(solution)
+            #print(FirePath)
+            while (not FirePath) or  (not solution):
+                makeGrid()
+                fireSeed = startFire()
+                FirePath = AStarFire(start,fireSeed)
+                solution = AStar(start,end)
 
-            # fire can't start at the beginning or end
-            while (GRID[fireSeed] == 0 or fireSeed == SIZE-1):
-                fireSeed = random.randint(0,SIZE-1)
 
-            #print(f"FireSeed is {fireSeed}")
-            GRID[fireSeed] = -3
-
-            print()
             strategy = int(input('Enter which strategy you would like to use (1, 2, 3): \n'))
             if strategy == 1:
                 strategy1(start,end)
@@ -175,30 +150,74 @@ def main():
     #showMaze()
     print()
 
-
 ######################[functions]######################
 
-def paintGRID(path):
+def startFire():
 
     global GRID
 
-    showTempMaze()
+    fireSeed = random.randint(0,SIZE-1)
 
-    for i in path:
+    # fire can't start at the beginning or end
+    while (GRID[fireSeed] == 0 or fireSeed == SIZE-1):
+        fireSeed = random.randint(0,SIZE-1)
 
-        if (i not in getNeighbors(i-1)) :
-            
-            backtrack = BFS(i-1,i)
-            
-            for j in backtrack:
-                GRID[i]= 5
+    GRID[fireSeed] = -3
 
-        else:
-            GRID[i] = 7
+    return fireSeed
 
+def paintGRID(path):
+
+  global GRID
+
+  showTempMaze()
+  
+  length = len(path)
+
+  for i in range(length):
+
+    #print(f"{path[i]} has neighbors {getNeighbors(path[i])}")
+
+    if (i>1 and (path[i] not in getNeighbors(path[i-1]) ) ) :
+
+      if(path[i] == path[i-1]):
+        GRID[path[i]] = pickColor(i)
         showTempMaze()
-    return
+      else:
+        backtrack = [path[i-1]] + AStar(path[i-1],path[i])
 
+        for j in backtrack:
+          if j == path[i-1]:
+            temp = GRID[j]
+            GRID[j] =  6
+            showTempMaze()
+            GRID[j] = temp
+
+          GRID[j]= pickColor(j)
+          showTempMaze()
+
+    else:
+      GRID[path[i]] = pickColor(path[i])
+      showTempMaze()
+
+  return
+
+def pickColor(current):
+
+  global GRID
+
+  if GRID[current] == 1:
+    color = 7
+  elif GRID[current] == 7:
+    color = 5
+  elif GRID[current] ==5:
+    color = 2
+  elif GRID[current] == 2:
+    color = 3
+  else: 
+    color =7
+
+  return color
 
 def strategy3(start,end):
 
@@ -270,14 +289,16 @@ def heu2(current,end):
 
     return dis
 
-def findFire(current):
+def findFire(strt):
+
     global GRID
+
 
     # creats the stack that you have already visited
     closedSet = []
 
     # creates the fringe stack and adds start to fringe
-    fringe = deque([(current,[])])
+    fringe = deque([(strt,[])])
 
     while fringe: # checks if the fringe is empty
         
@@ -294,7 +315,6 @@ def findFire(current):
 
         # calculate the valid neighbors
         vldneigh = getNeighbors(current) + getFireNeighbors(current,GRID)
-
         #print('Valid Neighbors for {} is {}'.format(current,vldneigh))
 
         for child in vldneigh:
@@ -509,6 +529,48 @@ def AStar(start,end):
     #print("No path")
     return None
 
+#executes the AStar search algo to find fire
+def AStarFire(start,end):
+    
+    dist = {}
+    processed = {}
+    prev = {}
+
+    for v in range(SIZE):
+        dist[v] = math.inf
+        processed[v] = False
+        prev[v] = NONE
+
+    dist[start] =0
+    fringe = []
+    heapq.heappush(fringe,(dist[start],start,[]))
+    prev[start] = start
+    
+    while fringe: # checks if the fringe is empty
+        
+        (d,v,path) = heapq.heappop(fringe)
+        #print(fringe)
+
+        # found the path
+        if (v == end):
+            #print ("Success!")
+            return path
+        
+        if not processed[v]:
+
+            vldneigh = getNeighbors(v) + getFireNeighbors(v,GRID)
+
+            for u in vldneigh:
+                if ((d + diagDis(u,end)) < dist[u]):
+                    dist[u] = d + diagDis(u,end)
+                    #print('going to {} from {} is {}'.format(v,u,dist[u]))
+                    heapq.heappush(fringe,(dist[u],u,path + [u]))
+                    prev[u] = v
+            processed[v] = True
+
+    #print("No path")
+    return None
+
 # eucledian heuristic for AStar
 def diagDis(current,end):
     global DIM
@@ -642,154 +704,162 @@ def makeGrid():
 
 # makes the visual canvas for the grid
 class showMaze():
-    def __init__(self):
-        global DIM
-        # makes the window for the maze
-        window = Tk()
-        window.title("Fire Maze")
+  def __init__(self):
+      global DIM
+      # makes the window for the maze
+      window = Tk()
+      window.title("Fire Maze")
 
-        # makes the grid all white
-        for i in range(SIZE):
-            if(GRID[i] == 1):
-                color = "white" # not empty
-            elif(GRID[i] == 0):
-                color = "black" # empty
-            elif(GRID[i] == -1):
-                color = "blue" # start is blue
-            elif(GRID[i] == -2):
-                color = "purple" # end is purple
-            elif(GRID[i] == -3):
-                color = "orangered" # on fire
-            elif(GRID[i] == 5):
-                color = "yellow" # backtrack
-            elif(GRID[i] ==6):
-                color = "firebrick" #you're on fire
-            else:
-                color = "green" # path taken
-            Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
+      # makes the grid all white
+      for i in range(SIZE):
+          if(GRID[i] == 1):
+              color = "white" # not empty
+          elif(GRID[i] == 0):
+              color = "black" # empty
+          elif(GRID[i] == -1):
+              color = "blue" # start is blue
+          elif(GRID[i] == -2):
+              color = "purple" # end is purple
+          elif(GRID[i] == -3):
+              color = "orangered" # on fire
+          elif(GRID[i] == 5):
+              color = "yellow" # backtrack
+          elif(GRID[i] ==6):
+              color = "firebrick" #you're on fire
+          elif(GRID[i] == 2):
+              color = "purple"
+          elif(GRID[i] == 3):
+              color = "grey"
+          else:
+              color = "green" # path taken
+          Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
 
-        width = 30*DIM*1.20
-        height = 30*DIM*1.20
-        screen_width = window.winfo_screenwidth()
-        screen_height = window.winfo_screenheight()
+      width = 30*DIM*1.20
+      height = 30*DIM*1.20
+      screen_width = window.winfo_screenwidth()
+      screen_height = window.winfo_screenheight()
 
-        # calculate position x and y coordinates
-        x = (screen_width/2) - (width/2)
-        y = (screen_height/2) - (height/2)
-        window.geometry('%dx%d+%d+%d' % (width, height, x, y))
-        window.mainloop()
+      # calculate position x and y coordinates
+      x = (screen_width/2) - (width/2)
+      y = (screen_height/2) - (height/2)
+      window.geometry('%dx%d+%d+%d' % (width, height, x, y))
+      window.mainloop()
 
 # psuedo animating the maze move
 class showTempMaze():
 
-    def __init__(self):
-        global DIM
-        # makes the window for the maze
-        window = Tk()
-        window.title("Fire Maze")
+  def __init__(self):
+    global DIM
+    # makes the window for the maze
+    window = Tk()
+    window.title("Fire Maze")
 
-        # makes the grid all white
-        for i in range(SIZE):
-            if(GRID[i] == 1):
-                color = "white" # not empty
-            elif(GRID[i] == 0):
-                color = "black" # empty
-            elif(GRID[i] == -1):
-                color = "blue" # start is blue
-            elif(GRID[i] == -2):
-                color = "purple" # end is purple
-            elif(GRID[i] == -3):
-                color = "orangered" # on fire
-            elif(GRID[i] == 5):
-                color = "yellow" #backtrack
-            elif(GRID[i] ==6):
-                color = "firebrick" #you're on fire
-            else:
-                color = "green" # path taken
-            Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
+    # makes the grid all white
+    for i in range(SIZE):
+        if(GRID[i] == 1):
+            color = "white" # not empty
+        elif(GRID[i] == 0):
+            color = "black" # empty
+        elif(GRID[i] == -1):
+            color = "blue" # start is blue
+        elif(GRID[i] == -2):
+            color = "purple" # end is purple
+        elif(GRID[i] == -3):
+            color = "orangered" # on fire
+        elif(GRID[i] == 5):
+            color = "yellow" #backtrack
+        elif(GRID[i] ==6):
+            color = "firebrick" #you're on fire
+        elif(GRID[i] == 2):
+            color = "purple"
+        elif(GRID[i] == 3):
+            color = "grey"
+        else:
+            color = "green" # path taken
+        Canvas(window, width=30, height = 30, bg = color).grid(row = i // DIM, column = i % DIM)
 
-        width = 30*DIM*1.20
-        height = 30*DIM*1.20
-        screen_width = window.winfo_screenwidth()
-        screen_height = window.winfo_screenheight()
+    width = 30*DIM*1.20
+    height = 30*DIM*1.20
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
 
-        # calculate position x and y coordinates
-        x = (screen_width/2) - (width/2)
-        y = (screen_height/2) - (height/2)
-        window.geometry('%dx%d+%d+%d' % (width, height, x, y))
-        window.after(400,window.destroy)
-        window.mainloop()
+    # calculate position x and y coordinates
+    x = (screen_width/2) - (width/2)
+    y = (screen_height/2) - (height/2)
+    window.geometry('%dx%d+%d+%d' % (width, height, x, y))
+    window.after(600,window.destroy)
+    window.mainloop()
 
 # gets the left, right, up, and down neighbors in that order
 def getNeighbors(current):
 
-    global SIZE
-    global GRID
-    global DIM
+  global SIZE
+  global GRID
+  global DIM
 
-    left = current -1
-    right = current+1
-    up = current - DIM
-    down = current + DIM
+  left = current -1
+  right = current+1
+  up = current - DIM
+  down = current + DIM
 
 
-    tempNeighbors = [ up, down, left, right ] # all possible neighbors
-    neighbors = [] # valid neighbors
+  tempNeighbors = [ left, right, up, down ] # all possible neighbors
+  neighbors = [] # valid neighbors
 
-    #checks if the current is on the left edges and gets rid of left neighbor
-    if (current % DIM == 0):
-        tempNeighbors.remove(left)
-    #checks if the current is on the right edges and gets rid of right neighbor
-    elif (current % DIM == (DIM -1)):
-        tempNeighbors.remove(right)
-    #checks if the current is on the down edge and gets rid of down neighbor
-    if (current // DIM == (DIM -1)):
-        tempNeighbors.remove(down)
-    #checks if the current is on the top edge and gets rid of top neighbor
-    elif(current //DIM == 0):
-        tempNeighbors.remove(up)
-    # gets rid of all the nieghbors that are empty
+  #checks if the current is on the left edges and gets rid of left neighbor
+  if (current % DIM == 0):
+      tempNeighbors.remove(left)
+  #checks if the current is on the right edges and gets rid of right neighbor
+  elif (current % DIM == (DIM -1)):
+      tempNeighbors.remove(right)
+  #checks if the current is on the down edge and gets rid of down neighbor
+  if (current // DIM == (DIM -1)):
+      tempNeighbors.remove(down)
+  #checks if the current is on the top edge and gets rid of top neighbor
+  elif(current //DIM == 0):
+      tempNeighbors.remove(up)
+  # gets rid of all the nieghbors that are empty
 
-    for i in tempNeighbors:
-        if not ((GRID[i] == 0) or (GRID[i] == -3)):
-            neighbors.append(i)
+  for i in tempNeighbors:
+      if not ((GRID[i] == 0) or (GRID[i] == -3)):
+          neighbors.append(i)
 
-    return neighbors
+  return neighbors
 
 #gets the Neighbors that are on fire
 def getFireNeighbors(current, mazeCopy):
     
-    global SIZE
-    global GRID
-    global DIM
+  global SIZE
+  global GRID
+  global DIM
 
-    left = current -1
-    right = current+1
-    up = current - DIM
-    down = current + DIM
+  left = current -1
+  right = current+1
+  up = current - DIM
+  down = current + DIM
 
 
-    tempNeighbors = [ up, down, right, left] # all possible neighbors
-    FireNeighbors = [] # valid neighbors
+  tempNeighbors = [ up, down, right, left] # all possible neighbors
+  FireNeighbors = [] # valid neighbors
 
-    #checks if the current is on the left edges and gets rid of left neighbor
-    if (current % DIM == 0):
-        tempNeighbors.remove(left)
-    #checks if the current is on the right edges and gets rid of right neighbor
-    elif (current % DIM == (DIM -1)):
-        tempNeighbors.remove(right)
-    #checks if the current is on the down edge and gets rid of down neighbor
-    if (current // DIM == (DIM -1)):
-        tempNeighbors.remove(down)
-    #checks if the current is on the top edge and gets rid of top neighbor
-    elif(current //DIM == 0):
-        tempNeighbors.remove(up)
-    # gets rid of all the nieghbors that are empty
-    for i in tempNeighbors:
-        if (mazeCopy[i] ==-3):
-            FireNeighbors.append(i)
+  #checks if the current is on the left edges and gets rid of left neighbor
+  if (current % DIM == 0):
+      tempNeighbors.remove(left)
+  #checks if the current is on the right edges and gets rid of right neighbor
+  elif (current % DIM == (DIM -1)):
+      tempNeighbors.remove(right)
+  #checks if the current is on the down edge and gets rid of down neighbor
+  if (current // DIM == (DIM -1)):
+      tempNeighbors.remove(down)
+  #checks if the current is on the top edge and gets rid of top neighbor
+  elif(current //DIM == 0):
+      tempNeighbors.remove(up)
+  # gets rid of all the nieghbors that are empty
+  for i in tempNeighbors:
+      if (mazeCopy[i] ==-3):
+          FireNeighbors.append(i)
 
-    return FireNeighbors
+  return FireNeighbors
 
 #___________________________________________________________________
 # RUN THE MAIN: DO NOT DELETE!
