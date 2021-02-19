@@ -116,7 +116,7 @@ def problem6():
     i = 0
     k = 0
     PROB = 0.3
-    iterations = 10
+    iterations = 30
     result1 = [0] * 20
     result2 = [0] * 20
     result3 = [0] * 20
@@ -202,7 +202,7 @@ def strategy3(start,end):
   path = AStarMod(start,end)
 
   if not path:
-      print("No Solution")
+      print("strategy 3: No Solution")
       return False
 
   current = start
@@ -213,7 +213,7 @@ def strategy3(start,end):
 
 
       if (not path):
-          print("SORRY NO SAFE PATH!")
+          print("strategy 3: SORRY NO SAFE PATH!")
           #showMaze()
           return False
 
@@ -228,13 +228,13 @@ def strategy3(start,end):
       current = path[0]
 
       if current == end:
-          print("MADE IT!")
+          print("strategy 3: MADE IT!")
           return True
 
       advFireOneStep()
 
       if (GRID[current] == -3):
-          print("YOU'RE ON FIRE!")
+          print("strategy 3: YOU'RE ON FIRE!")
           GRID[current] = 6
           #showMaze()
           return False
@@ -243,7 +243,7 @@ def strategy3(start,end):
       #showTempMaze()
   
 
-  print("MADE IT!")
+  print("strategy 3: MADE IT!")
   return True
 
 # creates a new heuristic that takes into account the fire and it's neighbors
@@ -385,95 +385,91 @@ def AStarFire(start,end):
 # keeps track of current fire and creates a new path but never expects the future
 def strategy2(start,end):
 
-  global GRID
+    global GRID
 
-  path = AStar(start,end)
+    path = AStar(start,end)
 
-  if not path:
-      print("No Solution")
-      return False
+    if not path:
+        print("strategy 2: No Solution")
+        return False
 
-  current = start
+    current = start
 
-  while not path[0] == end:
-      
-      path = AStar(current,end)
-
-
-      if (not path):
-          print("SORRY NO SAFE PATH!")
-          #showMaze()
-          return False
+    while not path[0] == end:
+        
+        path = AStar(current,end)
 
 
-
-      if GRID[path[0]] == 7:
-          GRID[path[0]] = 5
-      else:
-          GRID[path[0]] = 7
-
-
-      current = path[0]
-
-      if current == end:
-          print("MADE IT!")
-          return True
-
-      advFireOneStep()
-
-      if (GRID[current] == -3):
-          print("YOU'RE ON FIRE!")
-          GRID[current] = 6
-          #showMaze()
-          return False
+        if (not path):
+            print("strategy 2: SORRY NO SAFE PATH!")
+            #showMaze()
+            return False
 
 
-      #showTempMaze()
-  
 
-  print("MADE IT!")
-  return True
+        if GRID[path[0]] == 7:
+            GRID[path[0]] = 5
+        else:
+            GRID[path[0]] = 7
+
+
+        current = path[0]
+
+        if current == end:
+            print("strategy 2: MADE IT!")
+            return True
+
+        advFireOneStep()
+
+        if (GRID[current] == -3):
+            print("strategy 2: YOU'RE ON FIRE!")
+            GRID[current] = 6
+            #showMaze()
+            return False
+
+    print("strategy 2: MADE IT!")
+    return True
 
 # executes strategy1
 def strategy1(start,end):
 
-  global GRID
-  path = AStar(start,end)
-  
-  if not path:
-      print("No solution")
-      return False
+    global GRID
+    path = AStar(start,end)
 
-  pathLength = len(path)
-  #print(path)
+    if not path:
+        print("strategy 1: No solution")
+        return False
 
-  for current in range(pathLength):
+    pathLength = len(path)
+    #print(path)
 
-      if (GRID[path[current]] == -3):
-          print("Stragie: YOU'RE ON FIRE!")
-          GRID[path[current]] = 6
-          #showMaze()
-          return False
+    for current in range(pathLength):
 
-      if path[current] == end:
-          print("Made it!")
-          return True
+        if (GRID[path[current]] == -3):
+            print("strategy 1: YOU'RE ON FIRE!")
+            GRID[path[current]] = 6
+            #showMaze()
+            return False
 
-      #moves the guy forward
-      GRID[path[current]] = pickColor(path[current])
+        if path[current] == end:
+            print("strategy 1: Made it!")
+            return True
 
-      # moves fire forward
-      advFireOneStep()
+        #moves the guy forward
+        GRID[path[current]] = pickColor(path[current])
 
-      # kills guy if he is currently on fire (== -3) or if his next move is on fire
-      if (GRID[path[current]] == -3):
-          print("YOU'RE ON FIRE!")
-          GRID[path[current]] = 6
-          #showMaze()
-          return False
-      
-      # shows the maze
-      #showTempMaze()
+        # moves fire forward
+        advFireOneStep()
+
+        # kills guy if he is currently on fire (== -3) or if his next move is on fire
+        if (GRID[path[current]] == -3):
+            print("strategy 1: YOU'RE ON FIRE!")
+            GRID[path[current]] = 6
+            #showMaze()
+            return False
+
+    print("strategy 1: Made it!")
+    return True
 
 #advances the fire by one step
 def advFireOneStep():
