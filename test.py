@@ -71,7 +71,7 @@ def main():
 
     # checks if there is a solution and then marks the path
 
-    strategy3(start,end)
+    #strategy3(start,end)
 
     print() #prints an empty line
     # generates the final solution
@@ -93,10 +93,63 @@ def main():
 
     #showMaze()
     #strategy3(start,end)
-
-
+    #problem2()
+    problem6()
     #showMaze()
     print()
+
+######################[problems]######################
+def problem2():
+    global DIM
+    global PROB
+    i = 0
+    k = 0
+    iterations = 100
+    result = [0] * 20
+    while i < 1:
+        PROB = i
+        print(PROB)
+        result[k] = 0
+        for j in range(iterations):
+            makeGrid()
+            if (DFS(start, end)):
+                result[k] = result[k] + 1
+        k = k + 1
+        i = i + 0.05
+    print("Dimension size is", DIM, "and there were", iterations, "iterations done")
+    print(result)
+
+def problem6():
+    global DIM
+    global PROB
+    global q
+    i = 0
+    k = 0
+    PROB = 0.3
+    iterations = 10
+    result1 = [0] * 20
+    result2 = [0] * 20
+    result3 = [0] * 20
+    while i < 1:
+        q = i
+        print(q)
+        result1[k] = 0
+        result2[k] = 0
+        result3[k] = 0
+        for j in range(iterations):
+            makeGrid()
+            if (strategy1(start, end)):
+                result1[k] = result1[k] + 1
+            if (strategy2(start, end)):
+                result2[k] = result2[k] + 1
+            if (strategy3(start, end)):
+                result3[k] = result3[k] + 1
+        k = k + 1
+        i = i + 0.05
+    print("Dimension size is", DIM, "and there were", iterations, "iterations done")
+    print("Strategy 1:", result1)
+    print("Strategy 2:", result2)
+    print("Strategy 3:", result3)
 
 ######################[functions]######################
 def startFire():
@@ -192,7 +245,7 @@ def strategy3(start,end):
           return
 
 
-      showTempMaze()
+      #showTempMaze()
   
 
   print("MADE IT!")
@@ -380,7 +433,7 @@ def strategy2(start,end):
           return
 
 
-      showTempMaze()
+      #showTempMaze()
   
 
   print("MADE IT!")
@@ -425,7 +478,7 @@ def strategy1(start,end):
           return
       
       # shows the maze
-      showTempMaze()
+      #showTempMaze()
 
 #advances the fire by one step
 def advFireOneStep():
