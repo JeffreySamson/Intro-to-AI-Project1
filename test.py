@@ -110,6 +110,7 @@ def problem2():
     print(result)
 
 def problem6():
+    global GRID
     global DIM
     global PROB
     global q
@@ -132,14 +133,13 @@ def problem6():
 
             if (strategy1(start, end)):
                 result1[k] = result1[k] + 1
-                GRID = np.copy(copyMaze)
+            GRID = np.copy(copyMaze)
             if (strategy2(start, end)):
                 result2[k] = result2[k] + 1
-                GRID = np.copy(copyMaze)
+            GRID = np.copy(copyMaze)
             if (strategy3(start, end)):
                 result3[k] = result3[k] + 1
-                GRID = np.copy(copyMaze)
-
+            GRID = np.copy(copyMaze)
         k = k + 1
         i = i + 0.05
     print("Dimension size is", DIM, "and there were", iterations, "iterations done")
@@ -204,7 +204,7 @@ def strategy3(start,end):
 
   if not path:
       print("No Solution")
-      return
+      return False
 
   current = start
 
@@ -215,8 +215,8 @@ def strategy3(start,end):
 
       if (not path):
           print("SORRY NO SAFE PATH!")
-          showMaze()
-          return
+          #showMaze()
+          return False
 
 
 
@@ -230,22 +230,22 @@ def strategy3(start,end):
 
       if current == end:
           print("MADE IT!")
-          return
+          return True
 
       advFireOneStep()
 
       if (GRID[current] == -3):
           print("YOU'RE ON FIRE!")
           GRID[current] = 6
-          showMaze()
-          return
+          #showMaze()
+          return False
 
 
       #showTempMaze()
   
 
   print("MADE IT!")
-  return
+  return True
 
 # creates a new heuristic that takes into account the fire and it's neighbors
 def heu2(current,end):
@@ -392,7 +392,7 @@ def strategy2(start,end):
 
   if not path:
       print("No Solution")
-      return
+      return False
 
   current = start
 
@@ -403,8 +403,8 @@ def strategy2(start,end):
 
       if (not path):
           print("SORRY NO SAFE PATH!")
-          showMaze()
-          return
+          #showMaze()
+          return False
 
 
 
@@ -418,22 +418,22 @@ def strategy2(start,end):
 
       if current == end:
           print("MADE IT!")
-          return
+          return True
 
       advFireOneStep()
 
       if (GRID[current] == -3):
           print("YOU'RE ON FIRE!")
           GRID[current] = 6
-          showMaze()
-          return
+          #showMaze()
+          return False
 
 
       #showTempMaze()
   
 
   print("MADE IT!")
-  return
+  return True
 
 # executes strategy1
 def strategy1(start,end):
@@ -443,7 +443,7 @@ def strategy1(start,end):
   
   if not path:
       print("No solution")
-      return
+      return False
 
   pathLength = len(path)
   #print(path)
@@ -453,12 +453,12 @@ def strategy1(start,end):
       if (GRID[path[current]] == -3):
           print("Stragie: YOU'RE ON FIRE!")
           GRID[path[current]] = 6
-          showMaze()
-          return
+          #showMaze()
+          return False
 
       if path[current] == end:
           print("Made it!")
-          return
+          return True
 
       #moves the guy forward
       GRID[path[current]] = pickColor(path[current])
@@ -470,8 +470,8 @@ def strategy1(start,end):
       if (GRID[path[current]] == -3):
           print("YOU'RE ON FIRE!")
           GRID[path[current]] = 6
-          showMaze()
-          return
+          #showMaze()
+          return False
       
       # shows the maze
       #showTempMaze()
