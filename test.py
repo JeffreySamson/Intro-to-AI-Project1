@@ -31,9 +31,9 @@ def main():
         #print ('PROB must be between 1 and 0')
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
-    DIM = 10
+    DIM = 25
     PROB = 0.3
-    q = 0.2
+    q = 0
 
     SIZE = DIM**2
 
@@ -85,24 +85,77 @@ def main():
     mazeCopy = np.copy(GRID)
 
     path = DFS(start,end)
-    if path:
+    """if path:
       print(path)
       paintGRID(path)
     else:
-      print("no path")
+      print("no path")"""
 
     #GRID = mazeCopy
 
     #showMaze()
     #strategy3(start,end)
-
-
+    print("Problem 2")
+    problem2()
+    print("Problem 6")
+    problem6()
     #showMaze()
-    print()
+    #print()
 
+##problems##
+def problem2():
+    global DIM
+    global PROB
+    i = 0
+    k = 0
+    iterations = 100
+    result = [0] * 20
+    while i < 1:
+        PROB = i
+        print(PROB)
+        result[k] = 0
+        for j in range(iterations):
+            makeGrid()
+            if (DFS(start, end)):
+                result[k] = result[k] + 1
+        k = k + 1
+        i = i + 0.05
+    print("Dimension size is", DIM, "and there were", iterations, "iterations done")
+    print(result)
 
+def problem6():
+    global DIM
+    global PROB
+    global q
+    i = 0
+    k = 0
+    PROB = 0.3
+    iterations = 10
+    result1 = [0] * 20
+    result2 = [0] * 20
+    result3 = [0] * 20
+    while i < 1:
+        q = i
+        print(q)
+        result1[k] = 0
+        result2[k] = 0
+        result3[k] = 0
+        for j in range(iterations):
+            makeGrid()
+            if (strategy1(start, end)):
+                result1[k] = result1[k] + 1
+            if (strategy2(start, end)):
+                result2[k] = result2[k] + 1
+            if (strategy3(start, end)):
+                result3[k] = result3[k] + 1
+        k = k + 1
+        i = i + 0.05
+    print("Dimension size is", DIM, "and there were", iterations, "iterations done")
+    print("Strategy 1:", result1)
+    print("Strategy 2:", result2)
+    print("Strategy 3:", result3)
 ######################[functions]######################
-
+"""
 def paintGRID(path):
 
   global GRID
@@ -130,7 +183,7 @@ def paintGRID(path):
 
       showTempMaze()
   return
-
+"""
 def strategy3(start,end):
 
 
@@ -140,7 +193,7 @@ def strategy3(start,end):
 
     if not path:
         print("No Solution")
-        return
+        return False
 
     current = start
 
@@ -152,7 +205,7 @@ def strategy3(start,end):
         if (not path):
             print("SORRY NO SAFE PATH!")
             showMaze()
-            return
+            return False
 
 
 
@@ -166,7 +219,7 @@ def strategy3(start,end):
 
         if current == end:
             print("MADE IT!")
-            return
+            return True
 
         advFireOneStep()
 
@@ -174,14 +227,14 @@ def strategy3(start,end):
             print("YOU'RE ON FIRE!")
             GRID[current] = 6
             showMaze()
-            return
+            return False
 
 
         showTempMaze()
     
 
     print("MADE IT!")
-    return
+    return True
 
 # creates a new heuristic that takes into account the fire and it's neighbors
 def heu2(current,end):
@@ -281,23 +334,23 @@ def strategy2(start,end):
 
     global GRID
 
-    path = DFS(start,end)
+    path = AStar(start,end)
 
     if not path:
         print("No Solution")
-        return
+        return False
 
     current = start
 
     while not path[0] == end:
         
-        path = DFS(current,end)
+        path = AStar(current,end)
 
 
         if (not path):
             print("SORRY NO SAFE PATH!")
             showMaze()
-            return
+            return False
 
 
 
@@ -311,7 +364,7 @@ def strategy2(start,end):
 
         if current == end:
             print("MADE IT!")
-            return
+            return True
 
         advFireOneStep()
 
@@ -319,14 +372,14 @@ def strategy2(start,end):
             print("YOU'RE ON FIRE!")
             GRID[current] = 6
             showMaze()
-            return
+            return False
 
 
         showTempMaze()
     
 
     print("MADE IT!")
-    return
+    return True
 
 # executes strategy1
 def strategy1(start,end):
@@ -336,7 +389,7 @@ def strategy1(start,end):
     
     if not path:
         print("No solution")
-        return
+        return False
 
     pathLength = len(path)
     #print(path)
@@ -347,11 +400,11 @@ def strategy1(start,end):
             print("YOU'RE ON FIRE!")
             GRID[path[current]] = 6
             showMaze()
-            return
+            return False
 
         if path[current] == end:
             print("Made it!")
-            return
+            return True
 
         #moves the guy forward
         if GRID[path[current]] == 7:
@@ -367,7 +420,7 @@ def strategy1(start,end):
             print("YOU'RE ON FIRE!")
             GRID[path[current]] = 6
             showMaze()
-            return
+            return False
         
         # shows the maze
         showTempMaze()
@@ -567,7 +620,7 @@ def makeGrid():
             c +=1
 
 # makes the visual canvas for the grid
-class showMaze():
+class showMaze():"""
     def __init__(self):
         global DIM
         # makes the window for the maze
@@ -603,10 +656,10 @@ class showMaze():
         x = (screen_width/2) - (width/2)
         y = (screen_height/2) - (height/2)
         window.geometry('%dx%d+%d+%d' % (width, height, x, y))
-        window.mainloop()
+        window.mainloop()"""
 
 # psuedo animating the maze move
-class showTempMaze():
+class showTempMaze():"""
 
     def __init__(self):
         global DIM
@@ -644,7 +697,7 @@ class showTempMaze():
         y = (screen_height/2) - (height/2)
         window.geometry('%dx%d+%d+%d' % (width, height, x, y))
         window.after(400,window.destroy)
-        window.mainloop()
+        window.mainloop()"""
 
 # gets the left, right, up, and down neighbors in that order
 def getNeighbors(current):
