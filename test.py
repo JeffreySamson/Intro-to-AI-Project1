@@ -54,7 +54,7 @@ def main():
     print()
     print("Going from {} -> {}".format(start,end))
 
-
+    makeGrid()
     fireSeed = startFire()
     FirePath = AStarFire(start,fireSeed)
     solution = AStar(start,end)
@@ -71,6 +71,7 @@ def main():
 
     # checks if there is a solution and then marks the path
 
+    strategy3(start,end)
 
     print() #prints an empty line
     # generates the final solution
