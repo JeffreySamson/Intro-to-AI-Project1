@@ -36,7 +36,7 @@ def main():
 
   DIM = 15
   PROB = 0.25
-  q = 0.2
+  q = 0.3
 
   SIZE = DIM**2
 
@@ -78,13 +78,7 @@ def main():
 
   #mazeCopy = np.copy(GRID)
 
-  path = DFS(start,end)
-
-  if path:
-    #print(path)
-    paintGRID(path)
-  else:
-    print("no path")
+  strategy3(start,end)
 
   #GRID = mazeCopy
 
@@ -228,46 +222,42 @@ def heu2(current,end):
 
     return dis
 
-def findFire(current):
-  
-  dist = {}
-  processed = {}
-  prev = {}
+def findFire(strt):
 
-  for v in range(SIZE):
-      dist[v] = math.inf
-      processed[v] = False
-      prev[v] = NONE
+    global GRID
 
-  dist[start] =0
-  fringe = []
-  heapq.heappush(fringe,(dist[start],start,[]))
-  prev[start] = start
-  
-  while fringe: # checks if the fringe is empty
-      
-      (d,v,path) = heapq.heappop(fringe)
-      #print(fringe)
 
-      # found the path
-      if (v == end):
-          #print ("Success!")
-          return path
-      
-      if not processed[v]:
+    # creats the stack that you have already visited
+    closedSet = []
 
-          vldneigh = getNeighbors(v)
+    # creates the fringe stack and adds start to fringe
+    fringe = deque([(strt,[])])
 
-          for u in vldneigh:
-              if ((d + heu2(u,end)) < dist[u]):
-                  dist[u] = d + heu2(u,end)
-                  #print('going to {} from {} is {}'.format(v,u,dist[u]))
-                  heapq.heappush(fringe,(dist[u],u,path + [u]))
-                  prev[u] = v
-          processed[v] = True
+    while fringe: # checks if the fringe is empty
+        
+        # current is the current node
+        # path keeps track of the path taken to reach current from start
+        #everything at the top of the queue will always be the shortest path
+        current, path = fringe.popleft()
+        closedSet.append(current)
 
-  #print("No path")
-  return None
+        # found the path
+        if (GRID[current] == -3):
+            #print ("Success!")
+            return current
+
+        # calculate the valid neighbors
+        vldneigh = getNeighbors(current) + getFireNeighbors(current,GRID)
+        #print('Valid Neighbors for {} is {}'.format(current,vldneigh))
+
+        for child in vldneigh:
+            if child not in closedSet:
+                # new path is path + current for this child
+                fringe.append((child,path + [current]))
+                closedSet.append(child)
+
+    #print("No Solution ")
+    return None
 
 def AStarMod(start,end):
   

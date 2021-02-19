@@ -34,11 +34,10 @@ def main():
         DIM = int(input('Enter the size of the array: \n'))
     PROB = float(input('Enter the probability of an element being a 1 or 0: \n'))
         # pobablility has to be a decimal value
-    while (PROB <0 or PROB >1):
+    while (PROB < 0 or PROB >1):
         print ('PROB must be between 1 and 0')
         PROB = float(input('Enter the probability of an element being a 1 or 0: \n'))
-    
-   
+     
 
     # INSERT START AND END POINTS
    
@@ -114,6 +113,7 @@ def main():
             #Makes Sure that the fire can reach the man and there is a solution
             
             # randomly starts the fire
+            makeGrid()
             fireSeed = startFire()
             FirePath = AStarFire(start,fireSeed)
             solution = AStar(start,end)
