@@ -234,7 +234,7 @@ def paintGRID(path):
 
     #print(f"{path[i]} has neighbors {getNeighbors(path[i])}")
 
-    if (i>1 and (path[i] not in getNeighbors(path[i-1]) ) ) :
+    if (i > 1) and (path[i] not in getNeighbors(path[i-1])) and (not i == (length-1) )  :
 
 
       backtrack = [path[i-1]] + AStar(path[i-1],path[i])
@@ -600,7 +600,7 @@ def AStar(start,end):
       # found the path
       if (v == end):
           #print ("Success!")
-          return path + [v]
+          return path
       
       if not processed[v]:
 
