@@ -247,7 +247,7 @@ def heu2(current,end):
     fire = diagDis(current,findFire(current))
 
     if fire <= 2:
-        dis = dis + ((DIM*2))-fire) + len(getFireNeighbors(current,GRID))
+        dis = dis + ((DIM*2))-fire)) + len(getFireNeighbors(current,GRID))
 
     return dis
 

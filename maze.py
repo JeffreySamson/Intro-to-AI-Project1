@@ -225,7 +225,7 @@ def paintGRID(path):
         GRID[path[i]] = pickColor(path[i])
         showTempMaze()
 
-      GRID[path[i]] = -2
+    GRID[path[i]] = -2
     showMaze()
     return
 
