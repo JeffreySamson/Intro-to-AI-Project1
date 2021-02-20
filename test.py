@@ -62,10 +62,11 @@ def main():
 
     GRID = mazeCopy
     showMaze()
-
-    solution = DFS(start,end)
-    solution.remove(end)
-    GRID[solution] = 7
+    
+    problem6()
+    #solution = DFS(start,end)
+    #solution.remove(end)
+    #GRID[solution] = 7
 
     showMaze()
     
@@ -237,6 +238,7 @@ def strategy3(start,end):
 def heu2(current,end):
 
     global SIZE
+    global DIM
 
     #euclidean distance
     dis = diagDis(current,end)
@@ -245,7 +247,7 @@ def heu2(current,end):
     fire = diagDis(current,findFire(current))
 
     if fire <= 2:
-        dis = dis + (SIZE-fire) + len(getFireNeighbors(current,GRID))
+        dis = dis + ((DIM*2))-fire) + len(getFireNeighbors(current,GRID))
 
     return dis
 
