@@ -18,8 +18,13 @@ from collections import deque
 # 7: path
 
 def main():
+<<<<<<< HEAD
 
   # global variables 
+=======
+    # hello
+    # global variables 
+>>>>>>> david-branch
     global SIZE
     global DIM
     global GRID
@@ -35,16 +40,16 @@ def main():
         #PROB = float(input('Enter the probability of an element being a 1 or 0: '))
 
     DIM = 10
-    PROB = 0.5
-    q = 0.1
+    PROB = 0.1
+    q = 0
 
     SIZE = DIM**2
 
     # generates random points to start
-    #start = random.randint(0,SIZE-1)
-    #end = random.randint(0,SIZE-1)
-    start = 0
-    end = SIZE - 1
+    start = random.randint(0,SIZE-1)
+    end = random.randint(0,SIZE-1)
+    #start = 0
+    #end = SIZE - 1
 
 
     #check so that start and end is not the same 
@@ -54,6 +59,7 @@ def main():
     print()
     print("Going from {} -> {}".format(start,end))
 
+<<<<<<< HEAD
     # runing the initial grid
     makeGrid()
     fireSeed = startFire()
@@ -62,41 +68,87 @@ def main():
     #print(solution)
     #print(FirePath)
     while (not FirePath) or  (not solution):
+=======
+    makeGrid()
+    mazeCopy = np.copy(GRID)
+    while (not AStar(start,end)) or (not (SIZE - sum(GRID)-3-2 == PROB*SIZE) ):
+>>>>>>> david-branch
         makeGrid()
-        fireSeed = startFire()
-        FirePath = AStarFire(start,fireSeed)
-        solution = AStar(start,end)
+        mazeCopy = np.copy(GRID)
 
-
-    #solution = DFS(start,end)
-
-    # checks if there is a solution and then marks the path
-
-
-    print() #prints an empty line
-    # generates the final solution
-
-    #mazeCopy = np.copy(GRID)
-
-    '''makeGrid()
-
-    empty = SIZE - sum(GRID) -5
-
-    while (not empty == PROB*SIZE) or (not AStar(start,end)):
-        makeGrid()
-        empty = SIZE - sum(GRID) -5
-
+    GRID = mazeCopy
+    showMaze()
     
-    showMaze()'''
+    problem6()
+    #solution = DFS(start,end)
+    #solution.remove(end)
+    #GRID[solution] = 7
 
-    #GRID = mazeCopy
+    showMaze()
+    
 
-    #showMaze()
-    #strategy3(start,end)
-
-
-    #showMaze()
     print()
+
+######################[problems]######################
+def problem2():
+    global DIM
+    global PROB
+    i = 0
+    k = 0
+    iterations = 100
+    result = [0] * 20
+    while i < 1:
+        PROB = float(str(round(i, 4)))
+        print(PROB)
+        result[k] = 0
+        for j in range(iterations):
+            makeGrid()
+            if (DFS(start, end)):
+                result[k] = result[k] + 1
+        k = k + 1
+        i = i + 0.05
+    print("Dimension size is", DIM, "and there were", iterations, "iterations done")
+    print(result)
+
+def problem6():
+    global GRID
+    global DIM
+    global PROB
+    global q
+
+    i = 0
+    k = 0
+    PROB = 0.3
+    iterations = 10
+    result1 = [0] * 41
+    result2 = [0] * 41
+    result3 = [0] * 41
+    while i <= 1:
+        q = float(str(round(i, 4)))
+        print()
+        result1[k] = 0
+        result2[k] = 0
+        result3[k] = 0
+        for j in range(iterations):
+            print(f"flammability {q}: iteration: {j}")
+            checkGrid()
+            copyMaze = np.copy(GRID)
+
+            if (strategy1(start, end)):
+                result1[k] = result1[k] + 1
+            GRID = np.copy(copyMaze)
+            if (strategy2(start, end)):
+                result2[k] = result2[k] + 1
+            GRID = np.copy(copyMaze)
+            if (strategy3(start, end)):
+                result3[k] = result3[k] + 1
+            GRID = np.copy(copyMaze)
+        k = k + 1
+        i = i + 0.025
+    print("Dimension size is", DIM, "and there were", iterations, "iterations done")
+    print("Strategy 1:", result1)
+    print("Strategy 2:", result2)
+    print("Strategy 3:", result3)
 
     path = DFS(start,end)
     """if path:
@@ -221,9 +273,15 @@ def strategy3(start,end):
 
     path = AStarMod(start,end)
 
+<<<<<<< HEAD
     if not path:
         print("No Solution")
         return
+=======
+  if not path:
+      print("strategy 3: No Solution")
+      return False
+>>>>>>> david-branch
 
     current = start
 
@@ -232,10 +290,17 @@ def strategy3(start,end):
         path = AStarMod(current,end)
 
 
+<<<<<<< HEAD
         if (not path):
             print("SORRY NO SAFE PATH!")
             showMaze()
             return
+=======
+      if (not path):
+          print("strategy 3: SORRY NO SAFE PATH!")
+          #showMaze()
+          return False
+>>>>>>> david-branch
 
 
 
@@ -247,12 +312,19 @@ def strategy3(start,end):
 
         current = path[0]
 
+<<<<<<< HEAD
         if current == end:
             print("MADE IT!")
             return
+=======
+      if current == end:
+          print("strategy 3: MADE IT!")
+          return True
+>>>>>>> david-branch
 
         advFireOneStep()
 
+<<<<<<< HEAD
         if (GRID[current] == -3):
             print("YOU'RE ON FIRE!")
             GRID[current] = 6
@@ -265,11 +337,26 @@ def strategy3(start,end):
 
     print("MADE IT!")
     return
+=======
+      if (GRID[current] == -3):
+          print("strategy 3: YOU'RE ON FIRE!")
+          GRID[current] = 6
+          #showMaze()
+          return False
+
+
+      #showTempMaze()
+  
+
+  print("strategy 3: MADE IT!")
+  return True
+>>>>>>> david-branch
 
 # creates a new heuristic that takes into account the fire and it's neighbors
 def heu2(current,end):
 
     global SIZE
+    global DIM
 
     #euclidean distance
     dis = diagDis(current,end)
@@ -278,7 +365,7 @@ def heu2(current,end):
     fire = diagDis(current,findFire(current))
 
     if fire <= 2:
-        dis = dis + (SIZE-fire) + len(getFireNeighbors(current,GRID))
+        dis = dis + ((DIM*2))-fire)) + len(getFireNeighbors(current,GRID))
 
     return dis
 
@@ -406,6 +493,7 @@ def AStarFire(start,end):
 def strategy2(start,end):
 
     global GRID
+<<<<<<< HEAD
 
     path = AStar(start,end)
 
@@ -418,21 +506,49 @@ def strategy2(start,end):
     while not path[0] == end:
         
         path = AStar(current,end)
+=======
 
+    path = AStar(start,end)
 
+    if not path:
+        print("strategy 2: No Solution")
+        return False
+
+    current = start
+>>>>>>> david-branch
+
+    while not path[0] == end:
+        
+        path = AStar(current,end)
+
+<<<<<<< HEAD
         if (not path):
             print("SORRY NO SAFE PATH!")
             showMaze()
             return
+=======
+>>>>>>> david-branch
+
+        if (not path):
+            print("strategy 2: SORRY NO SAFE PATH!")
+            #showMaze()
+            return False
 
 
+<<<<<<< HEAD
+        if GRID[path[0]] == 7:
+            GRID[path[0]] = 5
+        else:
+            GRID[path[0]] = 7
+=======
+>>>>>>> david-branch
 
         if GRID[path[0]] == 7:
             GRID[path[0]] = 5
         else:
             GRID[path[0]] = 7
 
-
+<<<<<<< HEAD
         current = path[0]
 
         if current == end:
@@ -446,19 +562,40 @@ def strategy2(start,end):
             GRID[current] = 6
             showMaze()
             return
+=======
 
+        current = path[0]
 
+        if current == end:
+            print("strategy 2: MADE IT!")
+            return True
+>>>>>>> david-branch
+
+        advFireOneStep()
+
+<<<<<<< HEAD
         showTempMaze()
     
 
     print("MADE IT!")
     return
+=======
+        if (GRID[current] == -3):
+            print("strategy 2: YOU'RE ON FIRE!")
+            GRID[current] = 6
+            #showMaze()
+            return False
+
+    print("strategy 2: MADE IT!")
+    return True
+>>>>>>> david-branch
 
 # executes strategy1
 def strategy1(start,end):
 
     global GRID
     path = AStar(start,end)
+<<<<<<< HEAD
     
     if not path:
         print("No solution")
@@ -497,6 +634,43 @@ def strategy1(start,end):
         
         # shows the maze
         showTempMaze()
+=======
+
+    if not path:
+        print("strategy 1: No solution")
+        return False
+
+    pathLength = len(path)
+    #print(path)
+
+    for current in range(pathLength):
+
+        if (GRID[path[current]] == -3):
+            print("strategy 1: YOU'RE ON FIRE!")
+            GRID[path[current]] = 6
+            #showMaze()
+            return False
+
+        if path[current] == end:
+            print("strategy 1: Made it!")
+            return True
+
+        #moves the guy forward
+        GRID[path[current]] = pickColor(path[current])
+
+        # moves fire forward
+        advFireOneStep()
+
+        # kills guy if he is currently on fire (== -3) or if his next move is on fire
+        if (GRID[path[current]] == -3):
+            print("strategy 1: YOU'RE ON FIRE!")
+            GRID[path[current]] = 6
+            #showMaze()
+            return False
+
+    print("strategy 1: Made it!")
+    return True
+>>>>>>> david-branch
 
 #advances the fire by one step
 def advFireOneStep():
@@ -704,6 +878,23 @@ def makeGrid():
         if  ( not i == start ) and (not i == end):
             if (random.random() <= PROB):
                 GRID[i] =0
+
+def checkGrid():
+
+    makeGrid()
+    fireSeed = startFire()
+    FirePath = AStarFire(start,fireSeed)
+    solution = AStar(start,end)
+    #print(solution)
+    #print(FirePath)
+    while (not FirePath) or  (not solution):
+        makeGrid()
+        fireSeed = startFire()
+        FirePath = AStarFire(start,fireSeed)
+        solution = AStar(start,end)
+
+
+    return
 
 # makes the visual canvas for the grid
 class showMaze():

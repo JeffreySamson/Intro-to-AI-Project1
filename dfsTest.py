@@ -6,6 +6,7 @@ import math
 from queue import Empty, PriorityQueue
 import heapq
 from collections import deque
+import time
 
 
 # 0: blocked
@@ -29,8 +30,49 @@ def main():
     global end      # End goal that the agent must reach
     global q    # flammability rate
 
+    DIM = 5050
+    SIZE = DIM**2
+    PROB = 0.3
+    start = 0
+    end = SIZE-1
+    #makeGrid()
+
+    '''start_time = time.time()
+    path = BFS(start, end)
+    #print(path)
+    bfsTime = time.time() - start_time'''
+    
+    makeGrid()
+    start_time = time.time()
+    path = DFS(start, end)
+    dfsTime = time.time() - start_time
+    #makeGrid()
+    #start_time = time.time()
+    #path = AStar(start, end)
+    #astarTime = time.time() - start_time
+
+    '''astarTime = 0.0
+    increment = 10
+    times = [ ]
+    while(astarTime < 60.0):
+        DIM += increment
+        makeGrid()
+        start_time = time.time()
+        BFS(start, end)
+        astarTime = time.time() - start_time
+        if astarTime > 61:
+            increment = increment / 2
+            DIM = DIM / 2
+            continue
+        times.append(astarTime)
+    '''
+    
+    print("--- DFS Finished in {} seconds ---".format(dfsTime))
+    #print("--- BFS Finished in {} seconds ---".format(bfsTime))
+    #print("--- AStar Finsihed in {} seconds ---".format(times[len(times)-1]))
+
     # Initializing variables with user input through command line
-    DIM = int(input('Enter the size of the array: \n'))
+    """DIM = int(input('Enter the size of the array: \n'))
     PROB = float(input('Enter the probability of an element between 1 or 0 (Not including 0): \n'))
 
     # Ensures that the probaility must be at least a 0 and less than 1
@@ -121,6 +163,7 @@ def main():
                 
         else: print("Please enter 1, 2, or 3.\n")
 
+"""
     print()
 
 ######################[problems]######################
@@ -154,7 +197,7 @@ def problem6():
     global q
     i = 0
     k = 0
-    PROB = 0.3
+    #PROB = 0.3
     iterations = 30
     result1 = [0] * 20
     result2 = [0] * 20
@@ -225,7 +268,7 @@ def paintGRID(path):
         GRID[path[i]] = pickColor(path[i])
         showTempMaze()
 
-    GRID[path[i]] = -2
+      GRID[path[i]] = -2
     showMaze()
     return
 
@@ -282,7 +325,6 @@ def strategy3(start,end):
 def heu2(current,end):
 
     global SIZE
-    global DIM
 
     #euclidean distance
     dis = diagDis(current,end)
@@ -291,7 +333,7 @@ def heu2(current,end):
     fire = diagDis(current,findFire(current))
 
     if fire <= 2:
-        dis = dis + ((DIM*2)-fire) + len(getFireNeighbors(current,GRID))
+        dis = dis + (SIZE-fire) + len(getFireNeighbors(current,GRID))
 
     return dis
 
@@ -547,19 +589,26 @@ def AStar(start,end):
   while fringe: # checks if the fringe is empty
       
       (d,v,path) = heapq.heappop(fringe)
+      #print(fringe)
 
       # found the path
       if (v == end):
+          #print ("Success!")
           return path
-
+      
       if not processed[v]:
+
           vldneigh = getNeighbors(v)
+
           for u in vldneigh:
               if ((d + diagDis(u,end)) < dist[u]):
                   dist[u] = d + diagDis(u,end)
+                  #print('going to {} from {} is {}'.format(v,u,dist[u]))
                   heapq.heappush(fringe,(dist[u],u,path + [u]))
                   prev[u] = v
           processed[v] = True
+
+  #print("No path")
   return None
 
 # Eucledian heuristic for AStar
@@ -651,6 +700,7 @@ def DFS(start, end):
       # pops the top off the stack
       current = fringe.pop()
       path.append(current)
+      
       #print("current {}".format(current))
 
       # found the path
@@ -701,8 +751,9 @@ def makeGrid():
 
     GRID[start] = -1
     GRID[end] = -2
-
+    print(SIZE)
     for i in range(SIZE):
+        print(i)
         if  ( not i == start ) and (not i == end):
             if (random.random() <= PROB):
                 GRID[i] =0
